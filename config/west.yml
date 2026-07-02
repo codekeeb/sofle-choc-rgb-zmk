@@ -7,8 +7,32 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      revision: 627e6dbec99211b3d7cce55904fb1c824ed87bf3
       import: app/west.yml
+    - name: zephyr
+      remote: zmkfirmware
+      revision: 0fa4cc26d8b1e5243570ccc0f7f66c4c428d2961
+      clone-depth: 1
+      import:
+        name-blocklist:
+          - ci-tools
+          - hal_altera
+          - hal_cypress
+          - hal_infineon
+          - hal_microchip
+          - hal_nxp
+          - hal_openisa
+          - hal_silabs
+          - hal_xtensa
+          - hal_st
+          - hal_ti
+          - loramac-node
+          - mcuboot
+          - mcumgr
+          - net-tools
+          - openthread
+          - edtt
+          - trusted-firmware-m
     - name: zmk-nice-oled
       remote: mctechnology17
       revision: main
