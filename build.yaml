@@ -20,7 +20,8 @@ include:
   - board: nice_nano_v2
     shield: sofle_right nice_oled
   - board: nice_nano_v2
-    shield: settings_reset  # Variante de depuracion: logs de ZMK por USB CDC (sin ZMK Studio).
+    shield: settings_reset
+  # Variante de depuracion: logs de ZMK por USB CDC (sin ZMK Studio).
   - board: nice_nano_v2
     shield: sofle_left nice_oled
     snippet: zmk-usb-logging
