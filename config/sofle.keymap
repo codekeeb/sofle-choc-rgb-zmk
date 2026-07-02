@@ -35,9 +35,64 @@
     };
 };
 
-/* El led_strip (spi3, 29 LEDs) se define una sola vez en
- * config/boards/nice_nano_v2.overlay; antes estaba duplicado aqui
- * con un chain-length distinto (30 vs 35) y ganaba este. */
+/* IMPORTANTE - NO BORRAR ESTE BLOQUE AUNQUE PAREZCA "DUPLICADO":
+ * el shield sofle de ZMK (>= v0.3) trae su propio
+ * boards/nice_nano_v2.overlay con MOSI en P0.06 y chain 36, y se aplica
+ * DESPUES de config/boards/nice_nano_v2.overlay, pisandolo. El keymap es
+ * lo ultimo que entra al devicetree, asi que solo desde aqui se puede
+ * imponer el pin real de esta variante (P0.08) y la cadena de 30 LEDs.
+ * (Ya paso una vez: se borro por "redundante" y los LEDs murieron durante
+ * un dia entero de depuracion. Verificado leyendo PSEL.MOSI del SPIM3 en
+ * caliente via USB logging.) */
+
+#include <dt-bindings/led/led.h>
+
+&pinctrl {
+    spi3_default: spi3_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+        };
+    };
+
+    spi3_sleep: spi3_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 8)>;
+            low-power-enable;
+        };
+    };
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    led_strip: ws2812@0 {
+        compatible = "worldsemi,ws2812-spi";
+        label = "WS2812";
+
+        /* SPI */
+        reg = <0>; /* ignored, but necessary for SPI bindings */
+        spi-max-frequency = <4000000>;
+
+        /* WS2812: 30 por mitad (col interior 1-4, LED del encoder 5o,
+         * pulgares y serpentina hasta la pinky) */
+        chain-length = <30>;
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+
+        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+    };
+};
+
+/ {
+    chosen {
+        zmk,underglow = &led_strip;
+    };
+};
 
 / {
     keymap {
