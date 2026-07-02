@@ -93,6 +93,9 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
     const struct fx_control_group_config *config = dev->config;
     struct fx_control_group_data *data = dev->data;
 
+    LOG_INF("fx ctrl: cmd=%d param=%d active=%d idx=%d brt=%d/%d", command, param, (int)data->active,
+            (int)data->current_fx_idx, (int)data->brightness, (int)config->brightness_steps);
+
     switch (command) {
     case RGB_FX_CMD_TOGGLE:
         data->active = !data->active;

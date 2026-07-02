@@ -51,6 +51,9 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
     uint8_t command = (binding->param1 >> 16) & 0xff;
     uint8_t zone = (binding->param1 >> 24) & 0xff;
 
+    LOG_INF("rgbfx pressed: param=0x%08x cmd=%d zone=%d value=%d groups=%d", binding->param1,
+            command, zone, value, (int)control_fx_size);
+
     if (command == RGB_FX_CMD_NEXT_CONTROL_ZONE) {
         current_zone++;
 

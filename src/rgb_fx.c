@@ -105,6 +105,8 @@ uint8_t zmk_rgb_fx_get_pixel_distance(size_t pixel_idx, size_t other_pixel_idx) 
 #endif
 
 static void zmk_rgb_fx_tick(struct k_work *work) {
+    static uint32_t tick_count = 0;
+
     rgb_fx_render_frame(fx_root, &pixels[0], pixels_size);
 
     for (size_t i = 0; i < pixels_size; ++i) {
@@ -119,10 +121,20 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
     size_t pixels_updated = 0;
 
     for (size_t i = 0; i < drivers_size; ++i) {
-        led_strip_update_rgb(drivers[i], &px_buffer[pixels_updated], pixels_per_driver[i]);
+        int rc = led_strip_update_rgb(drivers[i], &px_buffer[pixels_updated], pixels_per_driver[i]);
+
+        if (rc != 0) {
+            LOG_ERR("led_strip_update_rgb fallo: %d", rc);
+        }
 
         pixels_updated += pixels_per_driver[i];
     }
+
+    if (tick_count < 5 || tick_count % 300 == 0) {
+        LOG_INF("fx tick %u: px0=(%d,%d,%d) px14=(%d,%d,%d)", tick_count, px_buffer[0].r,
+                px_buffer[0].g, px_buffer[0].b, px_buffer[14].r, px_buffer[14].g, px_buffer[14].b);
+    }
+    tick_count++;
 }
 
 K_WORK_DEFINE(animation_work, zmk_rgb_fx_tick);
@@ -143,6 +155,7 @@ void zmk_rgb_fx_request_frames(uint32_t frames) {
     }
 
     if (fx_timer_countdown == 0) {
+        LOG_DBG("arrancando timer de animacion (%d ms/frame)", 1000 / CONFIG_ZMK_RGB_FX_FPS);
         k_timer_start(&animation_tick, K_MSEC(1000 / CONFIG_ZMK_RGB_FX_FPS),
                       K_MSEC(1000 / CONFIG_ZMK_RGB_FX_FPS));
     }
