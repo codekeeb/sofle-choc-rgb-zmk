@@ -119,6 +119,18 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
         pixels[i].value.b = 0;
     }
 
+#ifdef CONFIG_ZMK_USB_LOGGING
+    /* DEPURACION: los 3 primeros segundos, rojo fijo saltandose por completo
+     * el pipeline de efectos. */
+    if (tick_count < 90) {
+        for (size_t i = 0; i < pixels_size; ++i) {
+            px_buffer[i].r = 60;
+            px_buffer[i].g = 0;
+            px_buffer[i].b = 0;
+        }
+    }
+#endif
+
     size_t pixels_updated = 0;
 
     for (size_t i = 0; i < drivers_size; ++i) {
@@ -142,6 +154,14 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
         LOG_INF("fx tick %u: px0=(%d,%d,%d) px14=(%d,%d,%d) ext_power=%d", tick_count,
                 px_buffer[0].r, px_buffer[0].g, px_buffer[0].b, px_buffer[14].r, px_buffer[14].g,
                 px_buffer[14].b, ext);
+#ifdef CONFIG_SOC_NRF52840
+        /* DEPURACION: registros reales del SPIM3 (base 0x4002F000).
+         * PSEL: bit31=1 significa "desconectado"; bits bajos = numero de pin. */
+        LOG_INF("SPIM3 ENABLE=%08x PSEL.SCK=%08x PSEL.MOSI=%08x FREQ=%08x ready=%d",
+                *(volatile uint32_t *)0x4002F500, *(volatile uint32_t *)0x4002F508,
+                *(volatile uint32_t *)0x4002F50C, *(volatile uint32_t *)0x4002F524,
+                (int)device_is_ready(drivers[0]));
+#endif
     }
     tick_count++;
 }
