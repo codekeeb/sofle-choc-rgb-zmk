@@ -54,6 +54,17 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
 
         rc = read_cb(cb_arg, dev->data, sizeof(struct fx_control_group_data));
         if (rc >= 0) {
+            /* Sanear estado guardado: un brillo 0 persistido deja el RGB
+             * negro para siempre (render x0) aunque se pulse el toggle. */
+            const struct fx_control_group_config *config = dev->config;
+            struct fx_control_group_data *data = dev->data;
+
+            if (data->brightness == 0) {
+                data->brightness = config->brightness_steps;
+            }
+            if (data->current_fx_idx >= config->fx_size) {
+                data->current_fx_idx = 0;
+            }
             return 0;
         }
 
@@ -156,15 +167,13 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
         }
         break;
     case RGB_FX_CMD_DIM:
-        if (data->brightness == 0) {
+        /* Minimo 1: apagar es cosa del TOGGLE. Un brillo 0 persistido
+         * dejaba el teclado negro para siempre entre flasheos. */
+        if (data->brightness <= 1) {
             return 0;
         }
 
         data->brightness--;
-
-        if (data->brightness == 0) {
-            rgb_fx_stop(config->fx[data->current_fx_idx]);
-        }
         break;
     case RGB_FX_CMD_BRIGHTEN:
         if (data->brightness == config->brightness_steps) {
