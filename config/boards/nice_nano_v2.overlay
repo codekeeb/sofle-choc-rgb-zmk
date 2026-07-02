@@ -39,3 +39,6 @@
         zmk,underglow = &led_strip;
     };
 };
+&vbatt {
+    compatible = "codekeeb,battery-nrf-vddh-curve";
+};
