@@ -30,6 +30,35 @@ Notas:
   fiable con el USB desconectado.
 - Cada mitad muestra **su propia** batería en su OLED.
 
+## Efectos RGB
+
+ZMK de serie solo trae 4 efectos de underglow (solid, breathe, spectrum,
+swirl). Este repo lo sustituye por un sistema de animaciones (código
+vendorizado de [zmk-rgb-fx](https://github.com/crystalplanet/zmk-rgb-fx),
+MIT, con varios fixes) con geometría real del teclado:
+
+| Efecto       | Descripción                                             |
+| ------------ | ------------------------------------------------------- |
+| **Ripple**   | Ondas que emanan de cada tecla pulsada                  |
+| **Gradient** | Gradiente de 3 colores animado en diagonal              |
+| **Sparkle**  | Destellos aleatorios entre dos colores                  |
+| **Solid**    | Color uniforme que cicla lentamente entre dos tonos     |
+
+Teclas (capa lower, donde antes estaban las RGB):
+
+- `RGBFX_TOGGLE` enciende/apaga · `RGBFX_NEXT/PREVIOUS` cambia de efecto
+- `RGBFX_BRIGHTEN/DIM` sube/baja brillo (5 pasos) · estado persistente
+
+La geometría (posición x,y de cada uno de los 29 LEDs y el mapa
+tecla→LED) está en `config/sofle_left.overlay` y `config/sofle_right.overlay`;
+los colores y tiempos de cada efecto se ajustan ahí mismo (formato
+`HSL(h, s, l)`). Los fixes sobre el módulo original (en `src/`): typo
+`key_position`→`key-pixels`, tabla de distancias del ripple sin rellenar,
+y `locality` global para que las teclas RGB actúen en ambas mitades.
+
+Ojo con la batería: ripple/sparkle/gradient redibujan a 30 FPS mientras hay
+actividad; con celdas pequeñas (110-300 mAh) el efecto solid es el frugal.
+
 ## Compilar y flashear
 
 Push a `main` → GitHub Actions publica los `.uf2` (izquierda, derecha y

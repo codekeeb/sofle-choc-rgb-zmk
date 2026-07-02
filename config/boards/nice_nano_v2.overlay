@@ -25,7 +25,7 @@
     reg = <0>; /* ignored, but necessary for SPI bindings */
     spi-max-frequency = <4000000>;
     /* WS2812 */
-    chain-length = <35>; /* n�mero de LEDs actualizado a 35 seg�n documentaci�n */
+    chain-length = <29>; /* 29 LEDs per-key por mitad (verificado en el PCB); el Sofle Choc no lleva underglow aparte */
     spi-one-frame = <0x70>;
     spi-zero-frame = <0x40>;
     color-mapping = <LED_COLOR_ID_GREEN
