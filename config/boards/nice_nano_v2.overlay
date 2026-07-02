@@ -25,7 +25,7 @@
     reg = <0>; /* ignored, but necessary for SPI bindings */
     spi-max-frequency = <4000000>;
     /* WS2812 */
-    chain-length = <35>; /* número de LEDs actualizado a 35 según documentación */
+    chain-length = <35>; /* nï¿½mero de LEDs actualizado a 35 segï¿½n documentaciï¿½n */
     spi-one-frame = <0x70>;
     spi-zero-frame = <0x40>;
     color-mapping = <LED_COLOR_ID_GREEN
@@ -37,4 +37,12 @@
     chosen {
         zmk,underglow = &led_strip;
     };
+};
+
+/* Sustituye el driver de bateria del nice!nano (recta 4.20-3.45 V) por el
+ * driver propio con curva de descarga LiPo real (src/battery_nrf_vddh_curve.c).
+ * El % que muestra la OLED sale del voltaje: los mAh de la bateria no
+ * intervienen en el calculo. */
+&vbatt {
+    compatible = "codekeeb,battery-nrf-vddh-curve";
 };
