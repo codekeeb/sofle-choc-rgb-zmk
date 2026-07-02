@@ -14,49 +14,49 @@
     rgb_fx: rgb_fx {
         compatible = "zmk,rgb-fx";
         drivers = <&led_strip>;
-        chain-lengths = <29>;
+        chain-lengths = <30>;
         pixels
-            = <&pixel 17 6>,   /* 0  col interior fila0 */
-              <&pixel 17 26>,  /* 1  */
-              <&pixel 17 46>,  /* 2  */
-              <&pixel 17 66>,  /* 3  */
-              <&pixel 0 84>,   /* 4  pulgar interior */
-              <&pixel 14 84>,  /* 5  */
-              <&pixel 35 84>,  /* 6  */
-              <&pixel 37 63>,  /* 7  col 4 fila3 */
-              <&pixel 37 43>,  /* 8  */
-              <&pixel 37 23>,  /* 9  */
-              <&pixel 37 3>,   /* 10 col 4 fila0 */
-              <&pixel 57 0>,   /* 11 col 3 fila0 */
-              <&pixel 57 20>,  /* 12 */
-              <&pixel 57 40>,  /* 13 */
-              <&pixel 57 60>,  /* 14 col 3 fila3 */
-              <&pixel 56 84>,  /* 15 pulgar */
-              <&pixel 77 84>,  /* 16 pulgar exterior */
-              <&pixel 77 63>,  /* 17 col 2 fila3 */
-              <&pixel 77 43>,  /* 18 */
-              <&pixel 77 23>,  /* 19 */
-              <&pixel 77 3>,   /* 20 col 2 fila0 */
-              <&pixel 97 9>,   /* 21 col 1 fila0 */
-              <&pixel 97 29>,  /* 22 */
-              <&pixel 97 49>,  /* 23 */
-              <&pixel 97 69>,  /* 24 col 1 fila3 */
-              <&pixel 117 69>, /* 25 pinky fila3 */
-              <&pixel 117 49>, /* 26 */
-              <&pixel 117 29>, /* 27 */
-              <&pixel 117 9>;  /* 28 pinky fila0 */
+            = <&pixel 5 74>,   /* 0  LED del encoder (primero de la cadena) */
+              <&pixel 17 6>,   /* 1  col interior fila0 */
+              <&pixel 17 26>,  /* 2  */
+              <&pixel 17 46>,  /* 3  */
+              <&pixel 17 66>,  /* 4  */
+              <&pixel 0 84>,   /* 5  pulgar interior */
+              <&pixel 14 84>,  /* 6  */
+              <&pixel 35 84>,  /* 7  */
+              <&pixel 37 63>,  /* 8  col 4 fila3 */
+              <&pixel 37 43>,  /* 9  */
+              <&pixel 37 23>,  /* 10  */
+              <&pixel 37 3>,   /* 11 col 4 fila0 */
+              <&pixel 57 0>,   /* 12 col 3 fila0 */
+              <&pixel 57 20>,  /* 13 */
+              <&pixel 57 40>,  /* 14 */
+              <&pixel 57 60>,  /* 15 col 3 fila3 */
+              <&pixel 56 84>,  /* 16 pulgar */
+              <&pixel 77 84>,  /* 17 pulgar exterior */
+              <&pixel 77 63>,  /* 18 col 2 fila3 */
+              <&pixel 77 43>,  /* 19 */
+              <&pixel 77 23>,  /* 20 */
+              <&pixel 77 3>,   /* 21 col 2 fila0 */
+              <&pixel 97 9>,   /* 22 col 1 fila0 */
+              <&pixel 97 29>,  /* 23 */
+              <&pixel 97 49>,  /* 24 */
+              <&pixel 97 69>,  /* 25 col 1 fila3 */
+              <&pixel 117 69>, /* 26 pinky fila3 */
+              <&pixel 117 49>, /* 27 */
+              <&pixel 117 29>, /* 28 */
+              <&pixel 117 9>;  /* 29 pinky fila0 */
         key-pixels
-            = <0 0 0 0 0 0      0 10 11 20 21 28
-               1 1 1 1 1 1      1 9 12 19 22 27
-               2 2 2 2 2 2      2 8 13 18 23 26
-               3 3 3 3 3 3    3 4   3 7 14 17 24 25
-               4 4 4 4 4         4 5 6 15 16>;
+            = <1 1 1 1 1 1 1 11 12 21 22 29
+               2 2 2 2 2 2 2 10 13 20 23 28
+               3 3 3 3 3 3 3 9 14 19 24 27
+               4 4 4 4 4 4 4 0 4 8 15 18 25 26
+               5 5 5 5 5 5 6 7 16 17>;
     };
 
     fx_ripple: fx_ripple {
         compatible = "zmk,rgb-fx-ripple";
-        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-                  15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         color = <HSL(200, 100, 50)>;
         duration = <800>;
         ripple-width = <30>;
@@ -65,8 +65,7 @@
 
     fx_gradient: fx_gradient {
         compatible = "zmk,rgb-fx-linear-gradient";
-        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-                  15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         colors = <HSL(160, 100, 50) HSL(280, 100, 50) HSL(20, 100, 50)>;
         angle = <15>;
         duration = <8>;
@@ -74,16 +73,14 @@
 
     fx_sparkle: fx_sparkle {
         compatible = "zmk,rgb-fx-sparkle";
-        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-                  15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         colors = <HSL(180, 100, 60) HSL(300, 100, 60)>;
         duration = <3>;
     };
 
     fx_solid: fx_solid {
         compatible = "zmk,rgb-fx-solid";
-        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-                  15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         colors = <HSL(30, 100, 45) HSL(330, 100, 45)>;
         duration = <12>;
     };
