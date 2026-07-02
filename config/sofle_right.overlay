@@ -16,11 +16,11 @@
         drivers = <&led_strip>;
         chain-lengths = <30>;
         pixels
-            = <&pixel 5 74>,   /* 0  LED del encoder (primero de la cadena) */
-              <&pixel 17 6>,   /* 1  col interior fila0 */
-              <&pixel 17 26>,  /* 2  */
-              <&pixel 17 46>,  /* 3  */
-              <&pixel 17 66>,  /* 4  */
+            = <&pixel 17 6>,   /* 0  col interior fila0 (cadena empieza arriba) */
+              <&pixel 17 26>,  /* 1  */
+              <&pixel 17 46>,  /* 2  */
+              <&pixel 17 66>,  /* 3  */
+              <&pixel 5 74>,   /* 4  LED del encoder (5o de la cadena) */
               <&pixel 0 84>,   /* 5  pulgar interior */
               <&pixel 14 84>,  /* 6  */
               <&pixel 35 84>,  /* 7  */
@@ -47,10 +47,10 @@
               <&pixel 117 29>, /* 28 */
               <&pixel 117 9>;  /* 29 pinky fila0 */
         key-pixels
-            = <1 1 1 1 1 1 1 11 12 21 22 29
-               2 2 2 2 2 2 2 10 13 20 23 28
-               3 3 3 3 3 3 3 9 14 19 24 27
-               4 4 4 4 4 4 4 0 4 8 15 18 25 26
+            = <0 0 0 0 0 0 0 11 12 21 22 29
+               1 1 1 1 1 1 1 10 13 20 23 28
+               2 2 2 2 2 2 2 9 14 19 24 27
+               3 3 3 3 3 3 3 4 3 8 15 18 25 26
                5 5 5 5 5 5 6 7 16 17>;
     };
 

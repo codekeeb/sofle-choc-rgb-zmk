@@ -1,7 +1,18 @@
 # Sofle Choc wireless RGB — ZMK config
 
 Config de ZMK para Sofle Choc inalámbrico: nice!nano v2, OLED (`nice_oled`),
-35 LEDs RGB WS2812 y ZMK Studio.
+30 LEDs RGB por mitad (29 per-key + 1 en el encoder) y ZMK Studio.
+
+> **Pines de datos RGB según variante de PCB del taller** (¡no mezclar!):
+>
+> | PCB                        | Pin de datos | LEDs por mitad |
+> | -------------------------- | ------------ | -------------- |
+> | Sofle RGB MX wireless      | P0.06        | 29             |
+> | Sofle Choc wired           | P0.06        | 29             |
+> | **Sofle Choc wireless** (este repo) | **P0.08** | **30** (5º = LED del encoder) |
+>
+> La cadena de esta variante: columna interior de arriba abajo (1-4), LED del
+> encoder (5º), pulgares, y serpentea hasta la pinky.
 
 - ZMK está **pineado a `v0.3`** en `config/west.yml` para builds estables y
   reproducibles (la rama `main` de ZMK rompe cosas periódicamente; en
