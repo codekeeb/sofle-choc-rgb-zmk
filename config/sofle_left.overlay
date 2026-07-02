@@ -98,7 +98,7 @@
 
     fx_group: fx_group {
         compatible = "zmk,rgb-fx-control-group";
-        fx = <&fx_ripple &fx_gradient &fx_sparkle &fx_solid>;
+        fx = <&fx_gradient &fx_ripple &fx_sparkle &fx_solid>;
         brightness-steps = <5>;
     };
 };

@@ -104,26 +104,53 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
 
         rgb_fx_stop(config->fx[data->current_fx_idx]);
         break;
+    /* Upstream no paraba el efecto saliente ni arrancaba el entrante al
+     * cambiar (NEXT/PREVIOUS/SELECT): el nuevo efecto nunca recibia su
+     * on_start y quedaba a negro hasta reiniciar. */
     case RGB_FX_CMD_NEXT:
+        if (data->active) {
+            rgb_fx_stop(config->fx[data->current_fx_idx]);
+        }
+
         data->current_fx_idx++;
 
         if (data->current_fx_idx == config->fx_size) {
             data->current_fx_idx = 0;
         }
+
+        if (data->active) {
+            rgb_fx_start(config->fx[data->current_fx_idx]);
+        }
         break;
     case RGB_FX_CMD_PREVIOUS:
+        if (data->active) {
+            rgb_fx_stop(config->fx[data->current_fx_idx]);
+        }
+
         if (data->current_fx_idx == 0) {
             data->current_fx_idx = config->fx_size;
         }
 
         data->current_fx_idx--;
+
+        if (data->active) {
+            rgb_fx_start(config->fx[data->current_fx_idx]);
+        }
         break;
     case RGB_FX_CMD_SELECT:
-        if (config->fx_size < param) {
+        if (config->fx_size <= param) {
             return -ENOTSUP;
         }
 
+        if (data->active) {
+            rgb_fx_stop(config->fx[data->current_fx_idx]);
+        }
+
         data->current_fx_idx = param;
+
+        if (data->active) {
+            rgb_fx_start(config->fx[data->current_fx_idx]);
+        }
         break;
     case RGB_FX_CMD_DIM:
         if (data->brightness == 0) {
