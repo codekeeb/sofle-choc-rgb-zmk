@@ -16,6 +16,7 @@
 #include <zephyr/logging/log.h>
 
 #include <drivers/rgb_fx.h>
+#include <drivers/ext_power.h>
 
 #include <zmk/rgb_fx.h>
 #include <zmk/event_manager.h>
@@ -131,8 +132,16 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
     }
 
     if (tick_count < 5 || tick_count % 300 == 0) {
-        LOG_INF("fx tick %u: px0=(%d,%d,%d) px14=(%d,%d,%d)", tick_count, px_buffer[0].r,
-                px_buffer[0].g, px_buffer[0].b, px_buffer[14].r, px_buffer[14].g, px_buffer[14].b);
+        int ext = -1;
+#if DT_HAS_COMPAT_STATUS_OKAY(zmk_ext_power_generic)
+        const struct device *ext_power = DEVICE_DT_GET(DT_INST(0, zmk_ext_power_generic));
+        if (device_is_ready(ext_power)) {
+            ext = ext_power_get(ext_power);
+        }
+#endif
+        LOG_INF("fx tick %u: px0=(%d,%d,%d) px14=(%d,%d,%d) ext_power=%d", tick_count,
+                px_buffer[0].r, px_buffer[0].g, px_buffer[0].b, px_buffer[14].r, px_buffer[14].g,
+                px_buffer[14].b, ext);
     }
     tick_count++;
 }

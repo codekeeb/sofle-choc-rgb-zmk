@@ -26,3 +26,9 @@ include:
     shield: sofle_left nice_oled
     snippet: zmk-usb-logging
     artifact-name: sofle_left_usb_logging
+  # Prueba de biseccion: underglow clasico de ZMK sobre la misma base v0.3.
+  - board: nice_nano_v2
+    shield: sofle_left nice_oled
+    snippet: zmk-usb-logging
+    cmake-args: -DCONFIG_ZMK_RGB_FX=n -DCONFIG_ZMK_RGB_UNDERGLOW=y -DCONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER=n
+    artifact-name: sofle_left_underglow_test
