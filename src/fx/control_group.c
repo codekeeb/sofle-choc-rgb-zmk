@@ -293,7 +293,10 @@ static const struct rgb_fx_api fx_control_group_api = {
                                                                                                    \
     static struct fx_control_group_data fx_control_group_##idx##_data = {                          \
         .active = true,                                                                            \
-        .brightness = DT_INST_PROP(idx, brightness_steps) - 1,                                     \
+        /* Brillo inicial bajo: 30 LEDs a plena potencia piden ~500 mA, el    \
+         * rail se desploma y los WS2812 se resetean (quedan negros). El      \
+         * underglow historico de este teclado arrancaba al 10%. */           \
+        .brightness = 1,                                                                           \
         .current_fx_idx = 0,                                                                       \
     };                                                                                             \
                                                                                                    \
