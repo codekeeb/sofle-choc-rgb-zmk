@@ -26,3 +26,8 @@ include:
     shield: sofle_left nice_oled
     snippet: zmk-usb-logging
     artifact-name: sofle_left_usb_logging
+  # Depuracion: logs USB de la mitad DERECHA (split peripheral).
+  - board: nice_nano_v2
+    shield: sofle_right nice_oled
+    snippet: zmk-usb-logging
+    artifact-name: sofle_right_usb_logging
