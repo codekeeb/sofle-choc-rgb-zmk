@@ -6,7 +6,7 @@
 
 / {
     behaviors {
-        /omit-if-no-ref/ rgbfx: behavior_rgb_fx {
+        /omit-if-no-ref/ rgbfx: rgbfx {
             compatible = "zmk,behavior-rgb-fx";
             #binding-cells = <1>;
         };
