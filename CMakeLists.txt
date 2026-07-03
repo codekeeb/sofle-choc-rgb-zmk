@@ -15,5 +15,7 @@ if(CONFIG_ZMK_RGB_FX)
     src/fx/ripple.c
     src/fx/sparkle.c
     src/fx/linear_gradient.c
-    src/fx/solid.c)
+    src/fx/solid.c
+    src/fx/heatmap.c
+    src/fx/layer_color.c)
 endif()

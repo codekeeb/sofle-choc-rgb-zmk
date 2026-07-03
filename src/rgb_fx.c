@@ -7,6 +7,7 @@
 #define DT_DRV_COMPAT zmk_rgb_fx
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include <zephyr/device.h>
@@ -133,6 +134,9 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
 
     rgb_fx_render_frame(fx_root, &pixels[0], pixels_size);
 
+    /* Tinte de capa (fucsia lower / verde raise), pisa el frame entero. */
+    zmk_rgb_fx_layer_color_apply(&pixels[0], pixels_size);
+
     for (size_t i = 0; i < pixels_size; ++i) {
         zmk_rgb_to_led_rgb(&pixels[i].value, &px_buffer[i]);
 
@@ -214,6 +218,18 @@ void zmk_rgb_fx_request_frames(uint32_t frames) {
     fx_timer_countdown = frames;
 }
 
+/* Apagar fisicamente el strip (frame en negro). */
+static void zmk_rgb_fx_blank(void) {
+    memset(px_buffer, 0, sizeof(px_buffer));
+
+    size_t pixels_updated = 0;
+
+    for (size_t i = 0; i < drivers_size; ++i) {
+        led_strip_update_rgb(drivers[i], &px_buffer[pixels_updated], pixels_per_driver[i]);
+        pixels_updated += pixels_per_driver[i];
+    }
+}
+
 static int zmk_rgb_fx_on_activity_state_changed(const zmk_event_t *event) {
     const struct zmk_activity_state_changed *activity_state_event;
 
@@ -225,11 +241,16 @@ static int zmk_rgb_fx_on_activity_state_changed(const zmk_event_t *event) {
     switch (activity_state_event->state) {
     case ZMK_ACTIVITY_ACTIVE:
         rgb_fx_start(fx_root);
+        zmk_rgb_fx_request_frames(1);
         return 0;
+    /* Auto-off: en IDLE (CONFIG_ZMK_IDLE_TIMEOUT sin actividad) se paran
+     * los efectos y se apaga el strip; ACTIVE los revive. */
+    case ZMK_ACTIVITY_IDLE:
     case ZMK_ACTIVITY_SLEEP:
         rgb_fx_stop(fx_root);
         k_timer_stop(&animation_tick);
         fx_timer_countdown = 0;
+        zmk_rgb_fx_blank();
         return 0;
     default:
         return 0;

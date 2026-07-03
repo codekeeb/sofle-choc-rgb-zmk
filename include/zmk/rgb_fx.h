@@ -99,6 +99,11 @@ extern uint16_t zmk_rgb_fx_hue_offset;
 uint8_t zmk_rgb_fx_speed_get(void);
 void zmk_rgb_fx_speed_set(uint8_t step);
 
+/* Tinte por capa (layer_color.c): pinta el frame entero del color de la
+ * capa activa (lower/raise); no-op en capa base. */
+struct rgb_fx_pixel;
+void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels);
+
 struct zmk_color_rgb __zmk_apply_blending_mode(struct zmk_color_rgb base_value,
                                                struct zmk_color_rgb blend_value, uint8_t mode);
 

@@ -10,6 +10,12 @@
             compatible = "zmk,behavior-rgb-fx";
             #binding-cells = <1>;
         };
+
+        /* Relay interno central->periferico del tinte por capa. */
+        rgblay: rgblay {
+            compatible = "zmk,behavior-rgb-fx-layer";
+            #binding-cells = <1>;
+        };
     };
 
     /omit-if-no-ref/ pixel: rgb_fx_pixel {
