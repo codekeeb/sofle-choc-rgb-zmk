@@ -35,8 +35,9 @@ static const struct zmk_color_hsl layer_tint_colors[] = {
     {.h = 110, .s = 100, .l = 50},
 };
 
-/* LEDs de los pulgares (mismos indices de cadena en ambas mitades). */
-static const uint8_t layer_tint_thumb_px[] = {5, 6, 7, 16, 17};
+/* LED de la propia tecla de capa: LOWER (pulgar izq) y RAISE (pulgar der)
+ * son ambos el pixel 6 de su respectiva mitad. */
+#define LAYER_KEY_PX 6
 
 /* Cluster de flechas en raise: I(UP) J(LEFT) K(DOWN) L(RIGHT).
  * Solo existe en la mitad derecha (periferico). */
@@ -63,11 +64,17 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
 
     struct zmk_color_rgb rgb = tint_to_rgb(layer_tint_colors[layer_tint]);
 
-    for (size_t j = 0; j < ARRAY_SIZE(layer_tint_thumb_px); j++) {
-        if (layer_tint_thumb_px[j] < num_pixels) {
-            pixels[layer_tint_thumb_px[j]].value = rgb;
-        }
+    /* Solo la propia tecla de capa se ilumina: LOWER (fucsia) vive en la
+     * mitad izquierda y RAISE (verde) en la derecha. */
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
+    if (layer_tint == 1 && LAYER_KEY_PX < num_pixels) {
+        pixels[LAYER_KEY_PX].value = rgb;
     }
+#else
+    if (layer_tint == 2 && LAYER_KEY_PX < num_pixels) {
+        pixels[LAYER_KEY_PX].value = rgb;
+    }
+#endif
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
     /* En raise, iluminar el cluster de flechas (solo mitad derecha). */
@@ -86,7 +93,7 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     /* Panel Bluetooth en LOWER: BT_CLR (tecla ESC) en rojo, perfiles en
      * las teclas 1-5 en amarillo y el perfil ACTIVO en verde. */
     if (layer_tint == 1) {
-        static const uint8_t bt_clr_px = 26;                 /* tecla ` (BT_CLR) */
+        static const uint8_t bt_clr_px = 29;                 /* esquina sup. izq. (BT_CLR) */
         static const uint8_t bt_prof_px[] = {22, 21, 12, 11, 0}; /* teclas 1-5 */
 
         if (bt_clr_px < num_pixels) {

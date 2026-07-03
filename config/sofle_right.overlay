@@ -46,15 +46,15 @@
               <&pixel 220 29>,  /* 23 */
               <&pixel 220 49>,  /* 24 */
               <&pixel 220 69>,  /* 25 col 1 fila3 */
-              <&pixel 240 9>,  /* 26 pinky fila0 (la columna pinky DESCIENDE) */
-              <&pixel 240 29>, /* 27 pinky fila1 */
-              <&pixel 240 49>, /* 28 pinky fila2 */
-              <&pixel 240 69>; /* 29 pinky fila3 */
+              <&pixel 240 69>, /* 26 pinky fila3 (la columna pinky ASCIENDE) */
+              <&pixel 240 49>, /* 27 pinky fila2 */
+              <&pixel 240 29>, /* 28 pinky fila1 */
+              <&pixel 240 9>;  /* 29 pinky fila0 */
         key-pixels
-            = <0 0 0 0 0 0 0 11 12 21 22 26
-               1 1 1 1 1 1 1 10 13 20 23 27
-               2 2 2 2 2 2 2 9 14 19 24 28
-               3 3 3 3 3 3 3 4 3 8 15 18 25 29
+            = <0 0 0 0 0 0 0 11 12 21 22 29
+               1 1 1 1 1 1 1 10 13 20 23 28
+               2 2 2 2 2 2 2 9 14 19 24 27
+               3 3 3 3 3 3 3 4 3 8 15 18 25 26
                5 5 5 5 5 5 6 7 16 17>;
     };
 
