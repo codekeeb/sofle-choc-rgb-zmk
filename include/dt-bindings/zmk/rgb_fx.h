@@ -35,6 +35,8 @@
 #define RGBFX_CMD_DIM 5
 #define RGBFX_CMD_NEXT_CONTROL_ZONE 6
 #define RGBFX_CMD_PREVIOUS_CONTROL_ZONE 7
+#define RGBFX_CMD_HUE_UP 8
+#define RGBFX_CMD_HUE_DOWN 9
 
 /**
  * Generic animation command macro

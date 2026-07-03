@@ -67,6 +67,11 @@ static int fx_ripple_on_key_press(const struct device *dev, const zmk_event_t *e
         return 0;
     }
 
+    /* Solo las teclas de ESTA mitad: sin ondas cruzadas entre mitades. */
+    if (pos_event->source != ZMK_POSITION_STATE_CHANGE_SOURCE_LOCAL) {
+        return 0;
+    }
+
     if (data->num_events == config->event_buffer_size) {
         // Event buffer is full - new key press events are dropped.
         return -ENOMEM;
@@ -85,10 +90,14 @@ static int fx_ripple_on_key_press(const struct device *dev, const zmk_event_t *e
     return 0;
 }
 
+
 static void fx_ripple_render_frame(const struct device *dev, struct rgb_fx_pixel *pixels,
                                    size_t num_pixels) {
     const struct fx_ripple_config *config = dev->config;
     struct fx_ripple_data *data = dev->data;
+
+    /* Reconvertir por frame para que el offset de tono global aplique. */
+    zmk_hsl_to_rgb(config->color_hsl, &data->color_rgb);
 
     size_t *pixel_map = config->pixel_map;
 
@@ -207,3 +216,4 @@ static const struct rgb_fx_api fx_ripple_api = {
     ZMK_SUBSCRIPTION(fx_ripple_##idx, zmk_position_state_changed);
 
 DT_INST_FOREACH_STATUS_OKAY(FX_RIPPLE_DEVICE);
+

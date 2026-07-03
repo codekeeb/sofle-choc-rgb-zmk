@@ -39,6 +39,7 @@ struct fx_control_group_data {
     bool active;
     uint8_t brightness;
     size_t current_fx_idx;
+    uint16_t hue_offset;
 };
 
 static int fx_control_group_load_settings(const struct device *dev, const char *name, size_t len,
@@ -54,6 +55,7 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
 
         rc = read_cb(cb_arg, dev->data, sizeof(struct fx_control_group_data));
         if (rc >= 0) {
+            zmk_rgb_fx_hue_offset = ((struct fx_control_group_data *)dev->data)->hue_offset % 360;
             /* Sanear estado guardado: un brillo 0 persistido deja el RGB
              * negro para siempre (render x0) aunque se pulse el toggle. */
             const struct fx_control_group_config *config = dev->config;
@@ -165,6 +167,14 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
         if (data->active) {
             rgb_fx_start(config->fx[data->current_fx_idx]);
         }
+        break;
+    case RGB_FX_CMD_HUE_UP:
+        zmk_rgb_fx_hue_offset = (zmk_rgb_fx_hue_offset + 20) % 360;
+        data->hue_offset = zmk_rgb_fx_hue_offset;
+        break;
+    case RGB_FX_CMD_HUE_DOWN:
+        zmk_rgb_fx_hue_offset = (zmk_rgb_fx_hue_offset + 340) % 360;
+        data->hue_offset = zmk_rgb_fx_hue_offset;
         break;
     case RGB_FX_CMD_DIM:
         /* Minimo 1: apagar es cosa del TOGGLE. Un brillo 0 persistido

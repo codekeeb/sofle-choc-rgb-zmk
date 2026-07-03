@@ -92,6 +92,9 @@ void zmk_interpolate_rgb(const struct zmk_color_rgb *from, const struct zmk_colo
 
 void zmk_rgb_fx_request_frames(uint32_t frames);
 
+/* Offset de tono global en grados (0-359); ver color.c. */
+extern uint16_t zmk_rgb_fx_hue_offset;
+
 struct zmk_color_rgb __zmk_apply_blending_mode(struct zmk_color_rgb base_value,
                                                struct zmk_color_rgb blend_value, uint8_t mode);
 
