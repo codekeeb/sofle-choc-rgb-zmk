@@ -95,6 +95,10 @@ void zmk_rgb_fx_request_frames(uint32_t frames);
 /* Offset de tono global en grados (0-359); ver color.c. */
 extern uint16_t zmk_rgb_fx_hue_offset;
 
+/* Velocidad global de animacion: paso 0-4 (0.25x a 4x, 2 = 1x). */
+uint8_t zmk_rgb_fx_speed_get(void);
+void zmk_rgb_fx_speed_set(uint8_t step);
+
 struct zmk_color_rgb __zmk_apply_blending_mode(struct zmk_color_rgb base_value,
                                                struct zmk_color_rgb blend_value, uint8_t mode);
 

@@ -40,6 +40,7 @@ struct fx_control_group_data {
     uint8_t brightness;
     size_t current_fx_idx;
     uint16_t hue_offset;
+    uint8_t speed_step;
 };
 
 static int fx_control_group_load_settings(const struct device *dev, const char *name, size_t len,
@@ -56,6 +57,7 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
         rc = read_cb(cb_arg, dev->data, sizeof(struct fx_control_group_data));
         if (rc >= 0) {
             zmk_rgb_fx_hue_offset = ((struct fx_control_group_data *)dev->data)->hue_offset % 360;
+            zmk_rgb_fx_speed_set(((struct fx_control_group_data *)dev->data)->speed_step);
             /* Sanear estado guardado: un brillo 0 persistido deja el RGB
              * negro para siempre (render x0) aunque se pulse el toggle. */
             const struct fx_control_group_config *config = dev->config;
@@ -175,6 +177,18 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
     case RGB_FX_CMD_HUE_DOWN:
         zmk_rgb_fx_hue_offset = (zmk_rgb_fx_hue_offset + 340) % 360;
         data->hue_offset = zmk_rgb_fx_hue_offset;
+        break;
+    case RGB_FX_CMD_SPEED_UP:
+        if (zmk_rgb_fx_speed_get() < 4) {
+            zmk_rgb_fx_speed_set(zmk_rgb_fx_speed_get() + 1);
+        }
+        data->speed_step = zmk_rgb_fx_speed_get();
+        break;
+    case RGB_FX_CMD_SPEED_DOWN:
+        if (zmk_rgb_fx_speed_get() > 0) {
+            zmk_rgb_fx_speed_set(zmk_rgb_fx_speed_get() - 1);
+        }
+        data->speed_step = zmk_rgb_fx_speed_get();
         break;
     case RGB_FX_CMD_DIM:
         /* Minimo 1: apagar es cosa del TOGGLE. Un brillo 0 persistido
@@ -308,6 +322,7 @@ static const struct rgb_fx_api fx_control_group_api = {
          * underglow historico de este teclado arrancaba al 10%. */           \
         .brightness = 1,                                                                           \
         .current_fx_idx = 0,                                                                       \
+        .speed_step = 2, /* 1x */                                                                  \
     };                                                                                             \
                                                                                                    \
     DEVICE_DT_INST_DEFINE(idx, &fx_control_group_init, NULL, &fx_control_group_##idx##_data,       \

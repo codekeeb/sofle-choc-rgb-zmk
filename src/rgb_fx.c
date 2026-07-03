@@ -72,6 +72,29 @@ static struct led_rgb px_buffer[DT_INST_PROP_LEN(0, pixels)];
  */
 static uint32_t fx_timer_countdown = 0;
 
+/* Velocidad global: escala el periodo del tick de animacion. Paso 2 = 1x.
+ * Todos los efectos avanzan por-frame, asi que cambiar el ritmo de frames
+ * los acelera/frena todos por igual. */
+static const uint16_t fx_speed_period_ms[] = {
+    (1000 / CONFIG_ZMK_RGB_FX_FPS) * 4, /* 0: 0.25x */
+    (1000 / CONFIG_ZMK_RGB_FX_FPS) * 2, /* 1: 0.5x  */
+    (1000 / CONFIG_ZMK_RGB_FX_FPS),     /* 2: 1x    */
+    (1000 / CONFIG_ZMK_RGB_FX_FPS) / 2, /* 3: 2x    */
+    (1000 / CONFIG_ZMK_RGB_FX_FPS) / 4, /* 4: 4x    */
+};
+
+static uint8_t fx_speed_step = 2;
+
+uint8_t zmk_rgb_fx_speed_get(void) { return fx_speed_step; }
+
+void zmk_rgb_fx_speed_set(uint8_t step) {
+    if (step >= ARRAY_SIZE(fx_speed_period_ms)) {
+        step = 2;
+    }
+
+    fx_speed_step = step;
+}
+
 /**
  * Conditional implementation of zmk_rgb_fx_get_pixel_by_key_position
  * if key-pixels is set.
@@ -184,9 +207,8 @@ void zmk_rgb_fx_request_frames(uint32_t frames) {
     }
 
     if (fx_timer_countdown == 0) {
-        LOG_DBG("arrancando timer de animacion (%d ms/frame)", 1000 / CONFIG_ZMK_RGB_FX_FPS);
-        k_timer_start(&animation_tick, K_MSEC(1000 / CONFIG_ZMK_RGB_FX_FPS),
-                      K_MSEC(1000 / CONFIG_ZMK_RGB_FX_FPS));
+        uint16_t period = fx_speed_period_ms[fx_speed_step];
+        k_timer_start(&animation_tick, K_MSEC(period), K_MSEC(period));
     }
 
     fx_timer_countdown = frames;

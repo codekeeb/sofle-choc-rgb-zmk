@@ -18,6 +18,31 @@
             #binding-cells = <0>;
         };
 
+        // Encoders como controles RGB (giro horario = primera binding)
+        rgbenc_m: rgbenc_m { // lower + encoder izq: modo
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgbfx RGBFX_NEXT(0)>, <&rgbfx RGBFX_PREVIOUS(0)>;
+        };
+
+        rgbenc_h: rgbenc_h { // lower + encoder der: tono
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgbfx RGBFX_HUE_UP(0)>, <&rgbfx RGBFX_HUE_DOWN(0)>;
+        };
+
+        rgbenc_b: rgbenc_b { // raise + encoder izq: brillo
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgbfx RGBFX_BRIGHTEN(0)>, <&rgbfx RGBFX_DIM(0)>;
+        };
+
+        rgbenc_s: rgbenc_s { // raise + encoder der: velocidad
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgbfx RGBFX_SPD_UP(0)>, <&rgbfx RGBFX_SPD_DOWN(0)>;
+        };
+
         // Fast page scrolling encoder behavior - sends 20 page commands per rotation
         fast_pg_encoder: fast_pg_encoder {
             compatible = "zmk,behavior-sensor-rotate";
@@ -134,11 +159,11 @@
 &trans    &kp F1    &kp F2    &kp F3      &kp F4    &kp F5                    &kp F6    &kp F7   &kp F8          &kp F9    &kp F10   &kp F11
 &kp GRAVE &kp N1    &kp N2    &kp N3      &rgbfx RGBFX_TOGGLE(0)   &rgbfx RGBFX_NEXT(0)                    &kp N6    &kp N7   &kp N8          &kp N9    &kp N0    &kp F12
 &trans    &kp EXCL  &kp AT    &kp HASH    &rgbfx RGBFX_HUE_DOWN(0) &rgbfx RGBFX_HUE_UP(0)                &kp CARET &kp AMPS &kp KP_MULTIPLY &kp LPAR  &kp RPAR  &kp PIPE
-&trans    &studio_unlock &kp MINUS &kp KP_PLUS &rgbfx RGBFX_DIM(0)  &rgbfx RGBFX_BRIGHTEN(0)  &trans   &oledanim &kp LBKT  &kp RBKT &kp SEMI        &kp COLON &kp BSLH  &trans
+&trans    &studio_unlock &kp MINUS &kp KP_PLUS &rgbfx RGBFX_DIM(0)  &rgbfx RGBFX_BRIGHTEN(0)  &rgbfx RGBFX_TOGGLE(0)   &oledanim &kp LBKT  &kp RBKT &kp SEMI        &kp COLON &kp BSLH  &trans
                     &trans    &trans      &trans    &trans    &trans   &trans &trans    &trans   &trans          &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &fast_pg_encoder>;
+            sensor-bindings = <&rgbenc_m &rgbenc_h>;
         };
 
         raise_layer {
@@ -156,7 +181,7 @@
                         &trans       &trans       &trans       &trans  &trans   &trans           &trans    &trans    &trans   &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &fast_pg_encoder>;
+            sensor-bindings = <&rgbenc_b &rgbenc_s>;
         };
     };
 };
