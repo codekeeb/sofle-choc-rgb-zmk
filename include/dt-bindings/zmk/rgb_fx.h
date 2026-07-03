@@ -56,3 +56,9 @@
 #define RGBFX_NEXT_CONTROL_ZONE RGBFX_CONTROL_CMD(RGBFX_CMD_NEXT_CONTROL_ZONE, 0, 0)
 #define RGBFX_PREVIOUS_CONTROL_ZONE                                                                \
     RGBFX_CONTROL_CMD(RGBFX_CMD_PREVIOUS_CONTROL_ZONE, 0, 0)
+
+/**
+ * Control de tono global (offset aplicado a todos los efectos).
+ */
+#define RGBFX_HUE_UP(zone) RGBFX_CONTROL_CMD(RGBFX_CMD_HUE_UP, zone, 0)
+#define RGBFX_HUE_DOWN(zone) RGBFX_CONTROL_CMD(RGBFX_CMD_HUE_DOWN, zone, 0)
