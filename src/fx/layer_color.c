@@ -1,8 +1,9 @@
 /*
  * SPDX-License-Identifier: MIT
  *
- * Tinte por capa: mientras lower/raise estan activas, todo el teclado se
- * pinta de un color de aviso (fucsia / verde). Las capas solo las conoce
+ * Tinte por capa: mientras lower/raise estan activas, los LEDs de los
+ * pulgares se pintan de un color de aviso (fucsia / verde) y en raise el
+ * cluster de flechas IJKL de la derecha se ilumina en morado. Las capas solo las conoce
  * la mitad central, asi que el estado se reenvia al periferico por el
  * canal de behaviors del split (behavior `rgblay`, nombre <= 8 chars).
  */
@@ -32,22 +33,52 @@ static const struct zmk_color_hsl layer_tint_colors[] = {
     {.h = 110, .s = 100, .l = 50},
 };
 
+/* LEDs de los pulgares (mismos indices de cadena en ambas mitades). */
+static const uint8_t layer_tint_thumb_px[] = {5, 6, 7, 16, 17};
+
+/* Cluster de flechas en raise: I(UP) J(LEFT) K(DOWN) L(RIGHT).
+ * Solo existe en la mitad derecha (periferico). */
+static const uint8_t layer_tint_arrow_px[] = {13, 9, 14, 19};
+
+/* Morado para las flechas. */
+static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 270, .s = 100, .l = 50};
+
+/* Colores de aviso FIJOS: compensar el offset de tono global para que
+ * no roten con el ajuste de tono. */
+static struct zmk_color_rgb tint_to_rgb(struct zmk_color_hsl hsl) {
+    struct zmk_color_rgb rgb;
+
+    hsl.h = (hsl.h + 360 - zmk_rgb_fx_hue_offset) % 360;
+    zmk_hsl_to_rgb(&hsl, &rgb);
+
+    return rgb;
+}
+
 void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels) {
     if (layer_tint == 0 || layer_tint >= ARRAY_SIZE(layer_tint_colors)) {
         return;
     }
 
-    /* Colores de aviso FIJOS: compensar el offset de tono global para que
-     * el fucsia/verde no roten con lower+F/G. */
-    struct zmk_color_hsl hsl = layer_tint_colors[layer_tint];
-    hsl.h = (hsl.h + 360 - zmk_rgb_fx_hue_offset) % 360;
+    struct zmk_color_rgb rgb = tint_to_rgb(layer_tint_colors[layer_tint]);
 
-    struct zmk_color_rgb rgb;
-    zmk_hsl_to_rgb(&hsl, &rgb);
-
-    for (size_t i = 0; i < num_pixels; i++) {
-        pixels[i].value = rgb;
+    for (size_t j = 0; j < ARRAY_SIZE(layer_tint_thumb_px); j++) {
+        if (layer_tint_thumb_px[j] < num_pixels) {
+            pixels[layer_tint_thumb_px[j]].value = rgb;
+        }
     }
+
+#if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+    /* En raise, iluminar el cluster de flechas (solo mitad derecha). */
+    if (layer_tint == 2) {
+        struct zmk_color_rgb morado = tint_to_rgb(layer_tint_arrow_color);
+
+        for (size_t j = 0; j < ARRAY_SIZE(layer_tint_arrow_px); j++) {
+            if (layer_tint_arrow_px[j] < num_pixels) {
+                pixels[layer_tint_arrow_px[j]].value = morado;
+            }
+        }
+    }
+#endif
 }
 
 static void layer_tint_set(uint8_t tint) {
