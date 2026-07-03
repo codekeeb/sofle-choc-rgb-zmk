@@ -16,7 +16,9 @@
 #include <drivers/rgb_fx.h>
 
 #include <zmk/behavior.h>
+#include <zmk/ble.h>
 #include <zmk/event_manager.h>
+#include <zmk/events/ble_active_profile_changed.h>
 #include <zmk/events/layer_state_changed.h>
 #include <zmk/keymap.h>
 #include <zmk/rgb_fx.h>
@@ -40,8 +42,8 @@ static const uint8_t layer_tint_thumb_px[] = {5, 6, 7, 16, 17};
  * Solo existe en la mitad derecha (periferico). */
 static const uint8_t layer_tint_arrow_px[] = {13, 9, 14, 19};
 
-/* Morado para las flechas. */
-static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 270, .s = 100, .l = 50};
+/* Amarillo anaranjado saturado para las flechas. */
+static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 40, .s = 100, .l = 50};
 
 /* Colores de aviso FIJOS: compensar el offset de tono global para que
  * no roten con el ajuste de tono. */
@@ -70,11 +72,37 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
     /* En raise, iluminar el cluster de flechas (solo mitad derecha). */
     if (layer_tint == 2) {
-        struct zmk_color_rgb morado = tint_to_rgb(layer_tint_arrow_color);
+        struct zmk_color_rgb flechas = tint_to_rgb(layer_tint_arrow_color);
 
         for (size_t j = 0; j < ARRAY_SIZE(layer_tint_arrow_px); j++) {
             if (layer_tint_arrow_px[j] < num_pixels) {
-                pixels[layer_tint_arrow_px[j]].value = morado;
+                pixels[layer_tint_arrow_px[j]].value = flechas;
+            }
+        }
+    }
+#endif
+
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
+    /* Panel Bluetooth en raise (fila superior izquierda): BT_CLR en rojo,
+     * perfiles 1-5 en amarillo y el perfil ACTIVO en verde. */
+    if (layer_tint == 2) {
+        static const uint8_t bt_clr_px = 29;                 /* tecla ` (BT_CLR) */
+        static const uint8_t bt_prof_px[] = {22, 21, 12, 11, 0}; /* teclas 1-5 */
+
+        if (bt_clr_px < num_pixels) {
+            pixels[bt_clr_px].value =
+                tint_to_rgb((struct zmk_color_hsl){.h = 0, .s = 100, .l = 50});
+        }
+
+        struct zmk_color_rgb amarillo =
+            tint_to_rgb((struct zmk_color_hsl){.h = 50, .s = 100, .l = 50});
+        struct zmk_color_rgb verde =
+            tint_to_rgb((struct zmk_color_hsl){.h = 120, .s = 100, .l = 50});
+        uint8_t active = zmk_ble_active_profile_index();
+
+        for (size_t i = 0; i < ARRAY_SIZE(bt_prof_px); i++) {
+            if (bt_prof_px[i] < num_pixels) {
+                pixels[bt_prof_px[i]].value = (i == active) ? verde : amarillo;
             }
         }
     }
@@ -124,6 +152,14 @@ BEHAVIOR_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL,
 #include <zmk/split/central.h>
 
 static int layer_color_listener(const zmk_event_t *eh) {
+    /* Cambio de perfil BT con raise apretada: redibujar el panel. */
+    if (as_zmk_ble_active_profile_changed(eh) != NULL) {
+        if (layer_tint == 2) {
+            zmk_rgb_fx_request_frames(1);
+        }
+        return 0;
+    }
+
     if (as_zmk_layer_state_changed(eh) == NULL) {
         return -ENOTSUP;
     }
@@ -153,5 +189,6 @@ static int layer_color_listener(const zmk_event_t *eh) {
 
 ZMK_LISTENER(rgb_fx_layer_color, layer_color_listener);
 ZMK_SUBSCRIPTION(rgb_fx_layer_color, zmk_layer_state_changed);
+ZMK_SUBSCRIPTION(rgb_fx_layer_color, zmk_ble_active_profile_changed);
 
 #endif /* central */

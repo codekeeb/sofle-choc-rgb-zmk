@@ -76,10 +76,12 @@ salto. Los mapas viven en `config/sofle_left.overlay` y
   persistido dejaba el teclado negro para siempre).
 - **Velocidad**: 5 pasos (0.25×–4×) escalando el periodo del tick de
   animación — acelera/frena todos los efectos por igual.
-- **Color por capa**: LOWER pinta los **pulgares de fucsia** y RAISE de
-  **verde** + el **cluster de flechas (I/J/K/L) en morado** en la derecha
-  (aviso visual; colores fijos, no rotan con el tono). El estado viaja a
-  la mitad derecha por el canal de behaviors del split (behavior `rgblay`).
+- **Color por capa**: LOWER pinta los **pulgares de fucsia**; RAISE los
+  pinta de **verde**, ilumina las **flechas (I/J/K/L) en amarillo
+  anaranjado** en la derecha, y muestra el **panel Bluetooth** en la fila
+  superior izquierda: BT_CLR en rojo, perfiles 1-5 en amarillo y el
+  **perfil activo en verde**. Colores fijos (no rotan con el tono); el
+  estado viaja a la derecha por el canal split (behavior `rgblay`).
 - **Auto-off**: a los 60 s sin actividad (`CONFIG_ZMK_IDLE_TIMEOUT`) los
   efectos paran y el strip se apaga en negro; revive con cualquier tecla.
   Cada mitad gestiona su propia inactividad.
