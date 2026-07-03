@@ -4,6 +4,8 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: mctechnology17
       url-base: https://github.com/mctechnology17
+    - name: codekeeb
+      url-base: https://github.com/codekeeb
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -38,8 +40,9 @@ manifest:
           - openthread
           - edtt
           - trusted-firmware-m
+    # Fork con seleccion de animacion en caliente (behavior &oledanim)
     - name: zmk-nice-oled
-      remote: mctechnology17
-      revision: main
+      remote: codekeeb
+      revision: selectable
   self:
     path: config

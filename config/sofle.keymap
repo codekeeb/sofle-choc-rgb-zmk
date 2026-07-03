@@ -12,6 +12,12 @@
 
 / {
     behaviors {
+        // Cicla la animacion de la OLED derecha (gema/gato/cabeza/astronauta)
+        oledanim: oledanim {
+            compatible = "zmk,behavior-oled-anim";
+            #binding-cells = <0>;
+        };
+
         // Fast page scrolling encoder behavior - sends 20 page commands per rotation
         fast_pg_encoder: fast_pg_encoder {
             compatible = "zmk,behavior-sensor-rotate";
@@ -128,7 +134,7 @@
 &trans    &kp F1    &kp F2    &kp F3      &kp F4    &kp F5                    &kp F6    &kp F7   &kp F8          &kp F9    &kp F10   &kp F11
 &kp GRAVE &kp N1    &kp N2    &kp N3      &rgbfx RGBFX_TOGGLE(0)   &rgbfx RGBFX_NEXT(0)                    &kp N6    &kp N7   &kp N8          &kp N9    &kp N0    &kp F12
 &trans    &kp EXCL  &kp AT    &kp HASH    &rgbfx RGBFX_PREVIOUS(0) &rgbfx RGBFX_NEXT(0)                &kp CARET &kp AMPS &kp KP_MULTIPLY &kp LPAR  &kp RPAR  &kp PIPE
-&trans    &studio_unlock &kp MINUS &kp KP_PLUS &rgbfx RGBFX_DIM(0)  &rgbfx RGBFX_BRIGHTEN(0)  &trans   &trans &kp LBKT  &kp RBKT &kp SEMI        &kp COLON &kp BSLH  &trans
+&trans    &studio_unlock &kp MINUS &kp KP_PLUS &rgbfx RGBFX_DIM(0)  &rgbfx RGBFX_BRIGHTEN(0)  &trans   &oledanim &kp LBKT  &kp RBKT &kp SEMI        &kp COLON &kp BSLH  &trans
                     &trans    &trans      &trans    &trans    &trans   &trans &trans    &trans   &trans          &trans
             >;
 
