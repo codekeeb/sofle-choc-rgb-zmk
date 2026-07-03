@@ -114,11 +114,12 @@
     };
 
     fx_rainbow: fx_rainbow {
-        compatible = "zmk,rgb-fx-solid";
+        compatible = "zmk,rgb-fx-linear-gradient";
         pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         colors = <HSL(0, 100, 50) HSL(60, 100, 50) HSL(120, 100, 50)
                   HSL(180, 100, 50) HSL(240, 100, 50) HSL(300, 100, 50)>;
-        duration = <12>;
+        angle = <0>;
+        duration = <18>;
     };
 
     fx_sparkle_oro: fx_sparkle_oro {
@@ -137,10 +138,23 @@
         buffer-size = <12>;
     };
 
+
+    /* Degradado ESTATICO sin amarillo/verde: naranja-rosa-morado-azul-azul
+     * claro. duration 0 = fijo; el tono se rota con lower+F/G. */
+    fx_sunset: fx_sunset {
+        compatible = "zmk,rgb-fx-linear-gradient";
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
+        colors = <HSL(25, 100, 50) HSL(330, 100, 55) HSL(280, 100, 50)
+                  HSL(240, 100, 50) HSL(200, 100, 65)>;
+        angle = <0>;
+        duration = <0>;
+    };
+
     fx_group: fx_group {
         compatible = "zmk,rgb-fx-control-group";
         fx = <&fx_gradient &fx_ripple &fx_sparkle &fx_solid
-              &fx_fire &fx_ocean &fx_rainbow &fx_sparkle_oro &fx_ripple_rosa>;
+              &fx_fire &fx_ocean &fx_rainbow &fx_sparkle_oro &fx_ripple_rosa
+              &fx_sunset>;
         brightness-steps = <5>;
     };
 };
