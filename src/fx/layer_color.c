@@ -86,7 +86,7 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     /* Panel Bluetooth en LOWER: BT_CLR (tecla ESC) en rojo, perfiles en
      * las teclas 1-5 en amarillo y el perfil ACTIVO en verde. */
     if (layer_tint == 1) {
-        static const uint8_t bt_clr_px = 28;                 /* tecla ESC (BT_CLR) */
+        static const uint8_t bt_clr_px = 26;                 /* tecla ` (BT_CLR) */
         static const uint8_t bt_prof_px[] = {22, 21, 12, 11, 0}; /* teclas 1-5 */
 
         if (bt_clr_px < num_pixels) {
