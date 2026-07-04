@@ -33,6 +33,8 @@ struct vddh_curve_data {
     struct adc_channel_cfg acc;
     struct adc_sequence as;
     struct vddh_curve_value value;
+    /* Ultima lectura valida para el limitador de bajada (255 = ninguna). */
+    uint8_t last_soc;
 };
 
 /* Curva de descarga tipica de una celda LiPo 1S en reposo. Entre puntos se
@@ -79,28 +81,65 @@ static int vddh_curve_sample_fetch(const struct device *dev, enum sensor_channel
     struct vddh_curve_data *drv_data = dev->data;
     struct adc_sequence *as = &drv_data->as;
 
-    int rc = adc_read(adc, as);
-    as->calibrate = false;
+    /* MEDIANA DE 3 MUESTRAS: una lectura unica puede coincidir con un pico
+     * de consumo del RGB (sag) y dar un voltaje momentaneo absurdo (0%). */
+    int32_t samples[3];
 
-    if (rc != 0) {
-        LOG_ERR("Failed to read ADC: %d", rc);
-        return rc;
+    for (int i = 0; i < 3; i++) {
+        int rc = adc_read(adc, as);
+        as->calibrate = false;
+
+        if (rc != 0) {
+            LOG_ERR("Failed to read ADC: %d", rc);
+            return rc;
+        }
+
+        int32_t val = drv_data->value.adc_raw;
+        rc = adc_raw_to_millivolts(adc_ref_internal(adc), drv_data->acc.gain, as->resolution, &val);
+        if (rc != 0) {
+            LOG_ERR("Failed to convert raw ADC to mV: %d", rc);
+            return rc;
+        }
+
+        samples[i] = val;
+
+        if (i < 2) {
+            k_sleep(K_MSEC(3));
+        }
     }
 
-    int32_t val = drv_data->value.adc_raw;
-    rc = adc_raw_to_millivolts(adc_ref_internal(adc), drv_data->acc.gain, as->resolution, &val);
-    if (rc != 0) {
-        LOG_ERR("Failed to convert raw ADC to mV: %d", rc);
-        return rc;
+    /* mediana de 3 */
+    int32_t mv;
+    if ((samples[0] <= samples[1] && samples[1] <= samples[2]) ||
+        (samples[2] <= samples[1] && samples[1] <= samples[0])) {
+        mv = samples[1];
+    } else if ((samples[1] <= samples[0] && samples[0] <= samples[2]) ||
+               (samples[2] <= samples[0] && samples[0] <= samples[1])) {
+        mv = samples[0];
+    } else {
+        mv = samples[2];
     }
 
-    drv_data->value.millivolts = val * VDDHDIV;
-    drv_data->value.state_of_charge = lipo_mv_to_pct(drv_data->value.millivolts);
+    drv_data->value.millivolts = mv * VDDHDIV;
 
-    LOG_DBG("ADC raw %d ~ %d mV => %d%%", drv_data->value.adc_raw, drv_data->value.millivolts,
+    uint8_t soc = lipo_mv_to_pct(drv_data->value.millivolts);
+
+    /* LIMITADOR DE BAJADA: una descarga real nunca cae mas de unos puntos
+     * por minuto; los desplomes (p. ej. a 0% por sag sostenido durante la
+     * lectura) se absorben bajando como mucho 10 puntos por muestra.
+     * La subida (enchufar USB) no se limita. */
+    if (drv_data->last_soc <= 100 && soc < drv_data->last_soc &&
+        drv_data->last_soc - soc > 10) {
+        soc = drv_data->last_soc - 10;
+    }
+
+    drv_data->last_soc = soc;
+    drv_data->value.state_of_charge = soc;
+
+    LOG_DBG("ADC mediana %d mV => %d%%", drv_data->value.millivolts,
             drv_data->value.state_of_charge);
 
-    return rc;
+    return 0;
 }
 
 static int vddh_curve_channel_get(const struct device *dev, enum sensor_channel chan,
@@ -165,7 +204,7 @@ static int vddh_curve_init(const struct device *dev) {
     return rc;
 }
 
-static struct vddh_curve_data vddh_curve_data;
+static struct vddh_curve_data vddh_curve_data = {.last_soc = 255};
 
 DEVICE_DT_INST_DEFINE(0, &vddh_curve_init, NULL, &vddh_curve_data, NULL, POST_KERNEL,
                       CONFIG_SENSOR_INIT_PRIORITY, &vddh_curve_api);
