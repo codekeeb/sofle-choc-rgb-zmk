@@ -158,10 +158,10 @@
 // |       |ZMKSt|     |      | Bri- | Bri+ |        |        |       |      |       |       |      |   \   |       |
 //               |     |      |      |      |  SPACE |        | ENTER |      |       |       |      |
             bindings = <
-&bt BT_CLR &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3             &bt BT_SEL 4                                                   &kp F6     &kp F7     &kp F8           &kp F9     &kp F10    &kp F11
-&kp GRAVE  &kp N1         &kp N2       &kp N3       &rgbfx RGBFX_TOGGLE(0)   &rgbfx RGBFX_NEXT(0)                                           &kp N6     &kp N7     &kp N8           &kp N9     &kp N0     &kp F12
-&trans     &kp EXCL       &kp AT       &kp HASH     &rgbfx RGBFX_HUE_DOWN(0) &rgbfx RGBFX_HUE_UP(0)                                         &kp CARET  &kp AMPS   &kp KP_MULTIPLY  &kp LPAR   &kp RPAR   &kp PIPE
-&trans     &studio_unlock &kp MINUS    &kp KP_PLUS  &rgbfx RGBFX_DIM(0)      &rgbfx RGBFX_BRIGHTEN(0)  &rgbfx RGBFX_TOGGLE(0)    &oledanim  &kp LBKT   &kp RBKT   &kp SEMI         &kp COLON  &kp BSLH   &trans
+&bt BT_CLR &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3             &bt BT_SEL 4                                                   &kp F6     &kp F7     &kp F8           &kp F9     &kp F10    &kp DEL
+&kp GRAVE  &kp F11        &kp F12      &kp RA(E)    &rgbfx RGBFX_TOGGLE(0)   &rgbfx RGBFX_NEXT(0)                                           &trans     &trans     &kp UP           &trans     &trans     &kp BSPC
+&trans     &trans         &kp LBRC     &kp RBRC     &rgbfx RGBFX_HUE_DOWN(0) &rgbfx RGBFX_HUE_UP(0)                                         &trans     &kp LEFT   &kp DOWN         &kp RIGHT  &trans     &kp PIPE
+&trans     &studio_unlock &trans       &trans       &rgbfx RGBFX_DIM(0)      &rgbfx RGBFX_BRIGHTEN(0)  &rgbfx RGBFX_TOGGLE(0)    &oledanim  &trans     &trans     &trans           &trans     &kp BSLH   &trans
                           &trans       &trans       &trans                   &trans                    &trans                    &trans     &trans     &trans     &trans           &trans
             >;
 
