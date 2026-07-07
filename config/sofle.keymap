@@ -171,15 +171,15 @@
         raise_layer {
             display-name = "Rise";
 // ------------------------------------------------------------------------------------------------------------
-// |     |  F1  |  F2  |  F3   |  F4   |  F5  |                 |      |   [  |    ]  |   (  |   )   |  DEL  |
-// |     |      |      |       |       |      |                 | PGUP |   7  |    8  |   9  |   %   | BKSPC |
-// |     | ALT  | CTRL | SHIFT | CAPSWD|      |                 | PGDN |   4  |    5  |   6  |   +   |   x   |
-// |     | UNDO | CUT  | COPY  | PASTE |      |      |   | RGB  |      |   1  |    2  |   3  |   -   |   /   |
-//              |      |       |       |      |      |   |      |      |   0  |    .  |   =  |
+// |BTCLR| BT1  |  F2  |  F3   |  F4   |  F5  |                       |      |   [  |    ]  |   (  |   )   |  DEL  |
+// |     |      |      |       |       |      |                       | PGUP |   7  |    8  |   9  |   %   | BKSPC |
+// |     |      |      |       |       |      |                       | PGDN |   4  |    5  |   6  |   +   |   x   |
+// |     | UNDO | CUT  | COPY  | PASTE |      |       |        |  RGB |      |   1  |    2  |   3  |   -   |   /   |
+//              |      |       |       |      | SPACE |        | ENTER|      |   0  |    .  |   =  |
             bindings = <
-&trans     &kp F1       &kp F2       &kp F3       &kp F4       &kp F5                              &trans    &kp LBKT  &kp RBKT &kp LPAR  &kp RPAR      &kp DEL
-&trans     &kp INS      &kp PSCRN    &kp K_CMENU  &trans       &trans                              &kp PG_UP &kp N7    &kp N8   &kp N9    &kp PRCNT     &kp BSPC
-&trans     &kp LALT     &kp LCTRL    &kp LSHFT    &caps_word   &trans                              &kp PG_DN &kp N4    &kp N5   &kp N6    &kp KP_PLUS   &kp KP_MULTIPLY
+&bt BT_CLR &bt BT_SEL 0 &kp F2       &kp F3       &kp F4       &kp F5                              &trans    &kp LBKT  &kp RBKT &kp LPAR  &kp RPAR      &kp DEL
+&trans     &trans       &trans       &trans       &trans       &trans                              &kp PG_UP &kp N7    &kp N8   &kp N9    &kp PRCNT     &kp BSPC
+&trans     &trans       &trans       &trans       &trans       &trans                              &kp PG_DN &kp N4    &kp N5   &kp N6    &kp KP_PLUS   &kp KP_MULTIPLY
 &trans     &kp K_UNDO   &kp K_CUT    &kp K_COPY   &kp K_PASTE  &trans  &trans   &rgbfx RGBFX_TOGGLE(0)  &trans    &kp N1   &kp N2    &kp N3        &kp KP_MINUS  &kp KP_SLASH
                         &trans       &trans       &trans       &trans  &trans   &trans           &kp N0    &kp KP_DOT &kp KP_EQUAL &trans
             >;
