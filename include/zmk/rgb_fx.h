@@ -92,15 +92,15 @@ void zmk_interpolate_rgb(const struct zmk_color_rgb *from, const struct zmk_colo
 
 void zmk_rgb_fx_request_frames(uint32_t frames);
 
-/* Offset de tono global en grados (0-359); ver color.c. */
+/* Global hue offset in degrees (0-359); see color.c. */
 extern uint16_t zmk_rgb_fx_hue_offset;
 
-/* Velocidad global de animacion: paso 0-4 (0.25x a 4x, 2 = 1x). */
+/* Global animation speed: step 0-4 (0.25x to 4x, 2 = 1x). */
 uint8_t zmk_rgb_fx_speed_get(void);
 void zmk_rgb_fx_speed_set(uint8_t step);
 
-/* Tinte por capa (layer_color.c): pinta el frame entero del color de la
- * capa activa (lower/raise); no-op en capa base. */
+/* Per-layer tint (layer_color.c): paints the whole frame with the active
+ * layer color (lower/raise); no-op on the base layer. */
 struct rgb_fx_pixel;
 void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels);
 

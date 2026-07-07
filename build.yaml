@@ -21,12 +21,12 @@ include:
     shield: sofle_right nice_oled
   - board: nice_nano_v2
     shield: settings_reset
-  # Depuracion: logs USB + rojo fijo al arrancar + registros SPIM3.
+  # Debug: USB logs + solid red at boot + SPIM3 registers.
   - board: nice_nano_v2
     shield: sofle_left nice_oled
     snippet: zmk-usb-logging
     artifact-name: sofle_left_usb_logging
-  # Depuracion: logs USB de la mitad DERECHA (split peripheral).
+  # Debug: USB logs of the RIGHT half (split peripheral).
   - board: nice_nano_v2
     shield: sofle_right nice_oled
     snippet: zmk-usb-logging

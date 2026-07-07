@@ -11,7 +11,7 @@
             #binding-cells = <1>;
         };
 
-        /* Relay interno central->periferico del tinte por capa. */
+        /* Internal central->peripheral relay for the per-layer tint. */
         rgblay: rgblay {
             compatible = "zmk,behavior-rgb-fx-layer";
             #binding-cells = <1>;

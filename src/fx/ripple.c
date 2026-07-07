@@ -67,7 +67,7 @@ static int fx_ripple_on_key_press(const struct device *dev, const zmk_event_t *e
         return 0;
     }
 
-    /* Solo las teclas de ESTA mitad: sin ondas cruzadas entre mitades. */
+    /* Only keys on THIS half: no cross-half waves between halves. */
     if (pos_event->source != ZMK_POSITION_STATE_CHANGE_SOURCE_LOCAL) {
         return 0;
     }
@@ -96,7 +96,7 @@ static void fx_ripple_render_frame(const struct device *dev, struct rgb_fx_pixel
     const struct fx_ripple_config *config = dev->config;
     struct fx_ripple_data *data = dev->data;
 
-    /* Reconvertir por frame para que el offset de tono global aplique. */
+    /* Reconvert per frame so the global hue offset applies. */
     zmk_hsl_to_rgb(config->color_hsl, &data->color_rgb);
 
     size_t *pixel_map = config->pixel_map;

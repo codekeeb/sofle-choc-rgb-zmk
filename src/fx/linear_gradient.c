@@ -88,9 +88,9 @@ static void fx_linear_gradient_render_frame(const struct device *dev, struct rgb
 static void fx_linear_gradient_start(const struct device *dev) {
     struct fx_linear_gradient_data *data = dev->data;
 
-    /* Resetear la fase al arrancar: al cambiar de modo, ambas mitades
+    /* Reset the phase on start: on mode change, both halves
      * reciben el comando casi a la vez y el patron queda alineado en la
-     * costura (cada mitad anima con su propio reloj). */
+     * seam (each half animates with its own clock). */
     data->offset = 0;
 
     zmk_rgb_fx_request_frames(1);

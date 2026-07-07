@@ -1,8 +1,8 @@
 /*
  * SPDX-License-Identifier: MIT
  *
- * Efecto heatmap: cada tecla se enciende al pulsarla y se desvanece,
- * dejando un rastro del tecleo. Solo reacciona a las teclas de su mitad.
+ * Heatmap effect: each key lights up when pressed and fades out,
+ * leaving a typing trail. Only reacts to keys on its own half.
  */
 
 #define DT_DRV_COMPAT zmk_rgb_fx_heatmap
@@ -74,7 +74,7 @@ static void fx_heatmap_render_frame(const struct device *dev, struct rgb_fx_pixe
     const struct fx_heatmap_config *config = dev->config;
     struct fx_heatmap_data *data = dev->data;
 
-    /* Reconvertir por frame para que el offset de tono global aplique. */
+    /* Reconvert per frame so the global hue offset applies. */
     zmk_hsl_to_rgb(config->color_hsl, &data->color_rgb);
 
     bool any_hot = false;

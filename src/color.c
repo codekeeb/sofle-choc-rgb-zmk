@@ -30,9 +30,9 @@ static float float_abs(float a) { return a < 0 ? -a : a; }
  *
  * Algorithm source: https://www.tlbx.app/color-converter
  */
-/* Offset de tono global (grados 0-359), controlado con RGBFX_HUE_UP/DOWN.
- * Se aplica en el unico punto de conversion HSL->RGB, asi que rota el
- * color de TODOS los efectos sin tocar sus paletas. */
+/* Global hue offset (degrees 0-359), controlled with RGBFX_HUE_UP/DOWN.
+ * Applied at the single HSL->RGB conversion point, so it rotates the
+ * color of ALL effects without touching their palettes. */
 uint16_t zmk_rgb_fx_hue_offset = 0;
 
 void zmk_hsl_to_rgb(const struct zmk_color_hsl *hsl, struct zmk_color_rgb *rgb) {

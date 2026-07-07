@@ -1,0 +1,12 @@
+# Keymap diagram generation (local tooling, not part of the firmware)
+keymap-drawer.yaml
+keymap-merged.yaml
+merge_config.yaml
+draw_config.yaml
+sofle_choc_info.json
+physical_layout.json
+parse_err.txt
+*.svg
+*.png
+*.af
+*.af~lock~

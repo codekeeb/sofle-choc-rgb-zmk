@@ -1,12 +1,12 @@
 /*
  * SPDX-License-Identifier: MIT
  *
- * Sensor de bateria via VDDH del nRF52840 (VDDHDIV5), igual que el driver
- * zmk,battery-nrf-vddh de ZMK, pero convirtiendo mV -> % con una curva de
- * descarga LiPo real (tabla + interpolacion lineal) en lugar de la recta
- * 4.20 V -> 3.45 V de ZMK, que infravalora la carga durante casi toda la
- * vida de la bateria. El % de una LiPo depende solo del voltaje: la
- * capacidad en mAh no interviene.
+ * Battery sensor via the nRF52840 VDDH pin (VDDHDIV5), like the ZMK
+ * zmk,battery-nrf-vddh driver, but converting mV -> % with a real LiPo
+ * discharge curve (table + linear interpolation) instead of ZMK's
+ * 4.20 V -> 3.45 V line, which underreports charge for most of the
+ * battery's life. A LiPo's % depends only on voltage: the
+ * mAh capacity does not matter.
  */
 
 #define DT_DRV_COMPAT codekeeb_battery_nrf_vddh_curve
@@ -33,14 +33,14 @@ struct vddh_curve_data {
     struct adc_channel_cfg acc;
     struct adc_sequence as;
     struct vddh_curve_value value;
-    /* Ultima lectura valida para el limitador de bajada (255 = ninguna). */
+    /* Last valid reading for the downward slew limiter (255 = none). */
     uint8_t last_soc;
 };
 
-/* Curva de descarga tipica de una celda LiPo 1S en reposo. Entre puntos se
- * interpola linealmente. Fuente: curvas de descarga publicadas (Adafruit y
- * fabricantes); la zona 3.9-3.7 V es plana y concentra la mayor parte de la
- * capacidad, cosa que la recta original de ZMK ignora. */
+/* Typical discharge curve of a 1S LiPo cell at rest. Between points it
+ * interpolates linearly. Source: published discharge curves (Adafruit and
+ * manufacturers); the 3.9-3.7 V region is flat and holds most of the
+ * capacity, which ZMK's original line ignores. */
 static const struct {
     uint16_t mv;
     uint8_t pct;
@@ -81,8 +81,8 @@ static int vddh_curve_sample_fetch(const struct device *dev, enum sensor_channel
     struct vddh_curve_data *drv_data = dev->data;
     struct adc_sequence *as = &drv_data->as;
 
-    /* MEDIANA DE 3 MUESTRAS: una lectura unica puede coincidir con un pico
-     * de consumo del RGB (sag) y dar un voltaje momentaneo absurdo (0%). */
+    /* MEDIAN OF 3 SAMPLES: a single reading may coincide with an RGB
+     * current spike (sag) and yield an absurd momentary voltage (0%). */
     int32_t samples[3];
 
     for (int i = 0; i < 3; i++) {
@@ -108,7 +108,7 @@ static int vddh_curve_sample_fetch(const struct device *dev, enum sensor_channel
         }
     }
 
-    /* mediana de 3 */
+    /* median of 3 */
     int32_t mv;
     if ((samples[0] <= samples[1] && samples[1] <= samples[2]) ||
         (samples[2] <= samples[1] && samples[1] <= samples[0])) {
@@ -124,10 +124,10 @@ static int vddh_curve_sample_fetch(const struct device *dev, enum sensor_channel
 
     uint8_t soc = lipo_mv_to_pct(drv_data->value.millivolts);
 
-    /* LIMITADOR DE BAJADA: una descarga real nunca cae mas de unos puntos
-     * por minuto; los desplomes (p. ej. a 0% por sag sostenido durante la
-     * lectura) se absorben bajando como mucho 10 puntos por muestra.
-     * La subida (enchufar USB) no se limita. */
+    /* DOWNWARD SLEW LIMITER: a real discharge never drops more than a few
+     * points per minute; sudden drops (e.g. to 0% from sustained sag during
+     * the reading) are absorbed by dropping at most 10 points per sample.
+     * The rise (plugging in USB) is not limited. */
     if (drv_data->last_soc <= 100 && soc < drv_data->last_soc &&
         drv_data->last_soc - soc > 10) {
         soc = drv_data->last_soc - 10;

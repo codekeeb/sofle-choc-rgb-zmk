@@ -87,7 +87,7 @@ static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
 static int behavior_rgb_fx_init(const struct device *dev) { return 0; }
 
 static const struct behavior_driver_api behavior_rgb_fx_driver_api = {
-    /* Sin locality global las teclas RGB solo actuarian sobre la mitad central. */
+    /* Without global locality the RGB keys would only act on the central half. */
     .locality = BEHAVIOR_LOCALITY_GLOBAL,
     .binding_convert_central_state_dependent_params =
         on_keymap_binding_convert_central_state_dependent_params,

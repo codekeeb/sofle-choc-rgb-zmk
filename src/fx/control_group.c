@@ -58,8 +58,8 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
         if (rc >= 0) {
             zmk_rgb_fx_hue_offset = ((struct fx_control_group_data *)dev->data)->hue_offset % 360;
             zmk_rgb_fx_speed_set(((struct fx_control_group_data *)dev->data)->speed_step);
-            /* Sanear estado guardado: un brillo 0 persistido deja el RGB
-             * negro para siempre (render x0) aunque se pulse el toggle. */
+            /* Sanitize saved state: a persisted brightness of 0 leaves the RGB
+             * black forever (render x0) even if the toggle is pressed. */
             const struct fx_control_group_config *config = dev->config;
             struct fx_control_group_data *data = dev->data;
 
@@ -122,9 +122,9 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
 
         rgb_fx_stop(config->fx[data->current_fx_idx]);
         break;
-    /* Upstream no paraba el efecto saliente ni arrancaba el entrante al
-     * cambiar (NEXT/PREVIOUS/SELECT): el nuevo efecto nunca recibia su
-     * on_start y quedaba a negro hasta reiniciar. */
+    /* Upstream didn't stop the outgoing effect nor start the incoming one on
+     * change (NEXT/PREVIOUS/SELECT): the new effect never got its
+     * on_start and stayed black until reboot. */
     case RGB_FX_CMD_NEXT:
         if (data->active) {
             rgb_fx_stop(config->fx[data->current_fx_idx]);
@@ -191,8 +191,8 @@ int zmk_rgb_fx_control_handle_command(const struct device *dev, uint8_t command,
         data->speed_step = zmk_rgb_fx_speed_get();
         break;
     case RGB_FX_CMD_DIM:
-        /* Minimo 1: apagar es cosa del TOGGLE. Un brillo 0 persistido
-         * dejaba el teclado negro para siempre entre flasheos. */
+        /* Minimum 1: turning off is the TOGGLE's job. A persisted brightness 0
+         * left the keyboard black forever across reflashes. */
         if (data->brightness <= 1) {
             return 0;
         }
@@ -317,9 +317,9 @@ static const struct rgb_fx_api fx_control_group_api = {
                                                                                                    \
     static struct fx_control_group_data fx_control_group_##idx##_data = {                          \
         .active = true,                                                                            \
-        /* Brillo inicial bajo: 30 LEDs a plena potencia piden ~500 mA, el    \
-         * rail se desploma y los WS2812 se resetean (quedan negros). El      \
-         * underglow historico de este teclado arrancaba al 10%. */           \
+        /* Low initial brightness: 30 LEDs at full power draw ~500 mA, the   \
+         * rail collapses and the WS2812 reset (they go black). The          \
+         * historic underglow of this keyboard started at 10%. */            \
         .brightness = 1,                                                                           \
         .current_fx_idx = 0,                                                                       \
         .speed_step = 2, /* 1x */                                                                  \

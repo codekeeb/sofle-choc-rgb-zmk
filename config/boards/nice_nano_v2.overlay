@@ -39,9 +39,9 @@
     };
 };
 
-/* Sustituye el driver de bateria del nice!nano (recta 4.20-3.45 V) por el
+/* Replaces the nice!nano battery driver (4.20-3.45 V line) with the
  * driver propio con curva de descarga LiPo real (src/battery_nrf_vddh_curve.c).
- * El % que muestra la OLED sale del voltaje: los mAh de la bateria no
+ * The % shown on the OLED comes from voltage: the battery mAh do not
  * intervienen en el calculo. */
 &vbatt {
     compatible = "codekeeb,battery-nrf-vddh-curve";

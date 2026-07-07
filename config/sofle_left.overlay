@@ -1,14 +1,14 @@
 /*
- * RGB FX - mitad izquierda.
+ * RGB FX - left half.
  *
- * pixels: coordenadas (x,y) de cada LED en ORDEN DE CADENA (foto del PCB):
- * la cadena empieza en la columna interior (arriba->abajo), recorre los
- * pulgares y serpentea por columnas hasta la pinky. x crece hacia el interior
- * en unidades ~ paso de tecla / 20.
+ * pixels: (x,y) coordinates of each LED in CHAIN ORDER (PCB photo):
+ * the chain starts at the inner column (top->bottom), runs through the
+ * thumbs and serpentines by columns to the pinky. x grows toward the inside
+ * in units of ~ key pitch / 20.
  *
  * key-pixels: indice de pixel para cada una de las 60 posiciones del matrix
- * transform del Sofle. Las posiciones de la OTRA mitad apuntan al pixel del
- * borde interior de su fila: el ripple de teclas remotas entra por el borde.
+ * Sofle transform. The OTHER half's positions point to the pixel on the
+ * inner edge of its row: ripples from remote keys enter from the edge.
  */
 
 #include <rgb_fx.dtsi>
@@ -94,8 +94,8 @@
     };
 
 
-    /* --- Modos extra: mismo motor, distintas paletas/velocidades ---
-     * velocidad = duration (menor = mas rapido) | tono = colors HSL(h,s,l) */
+    /* --- Extra modes: same engine, different palettes/speeds ---
+     * speed = duration (lower = faster) | hue = colors HSL(h,s,l) */
 
     fx_fire: fx_fire {
         compatible = "zmk,rgb-fx-linear-gradient";
@@ -131,19 +131,19 @@
     };
 
 
-    /* Degradado ESTATICO: naranja-coral-rosa-morado-azul, saturacion
-     * maxima. duration 0 = fijo; el tono se rota con lower+F/G o el
-     * encoder derecho en lower. */
+    /* STATIC gradient: orange-coral-pink-purple-blue, max
+     * saturation. duration 0 = fixed; hue rotates with lower+F/G or the
+     * right encoder in lower. */
     fx_sunset: fx_sunset {
         compatible = "zmk,rgb-fx-linear-gradient";
         pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29>;
         colors = <HSL(25, 100, 50) HSL(355, 100, 50) HSL(330, 100, 50)
                   HSL(285, 100, 50) HSL(235, 100, 50)>;
         angle = <0>;
-        /* 5 paradas = 4 segmentos iguales; ancho 300 con teclado de 240
-         * muestra el arco completo sin que el ciclo se repita. El coral
-         * (355) fuerza mas tonos visibles en el tramo naranja->rosa, que
-         * cruza la banda perceptualmente plana del rojo. */
+        /* 5 stops = 4 equal segments; width 300 with a 240-wide keyboard
+         * shows the full arc without the cycle repeating. The coral
+         * (355) forces more visible hues on the orange->pink stretch, which
+         * crosses the perceptually flat red band. */
         gradient-width = <300>;
         duration = <0>;
     };

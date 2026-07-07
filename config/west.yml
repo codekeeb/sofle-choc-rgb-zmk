@@ -11,11 +11,11 @@ manifest:
       remote: zmkfirmware
       revision: v0.3
       import: app/west.yml
-    # Override del zephyr que importa ZMK: la rama v3.5.0+zmk-fixes recibio
-    # un bump del HAL de Nordic el 2025-05-26 que rompe la salida WS2812 por
-    # SPIM en este teclado (LEDs a oscuras con datos SPI "correctos"). Se
-    # pinea al estado de la rama con el que se compilo el firmware que
-    # funcionaba (feb-2025). Mismo import/blocklist que app/west.yml de ZMK.
+    # Override the Zephyr that ZMK imports: the v3.5.0+zmk-fixes branch got
+    # a Nordic HAL bump on 2025-05-26 that breaks WS2812 output over SPIM on
+    # this keyboard (LEDs dark with "correct" SPI data). It is pinned to the
+    # branch state the working firmware was built against (Feb 2025). Same
+    # import/blocklist as ZMK's app/west.yml.
     - name: zephyr
       remote: zmkfirmware
       revision: 0fa4cc26d8b1e5243570ccc0f7f66c4c428d2961
@@ -40,7 +40,7 @@ manifest:
           - openthread
           - edtt
           - trusted-firmware-m
-    # Fork con seleccion de animacion en caliente (behavior &oledanim)
+    # Fork with runtime animation selection (behavior &oledanim)
     - name: zmk-nice-oled
       remote: codekeeb
       revision: selectable

@@ -1,229 +1,229 @@
-# Sofle Choc Wireless RGB — firmware ZMK · CODE/KEEB
+# Sofle Choc Wireless RGB — ZMK firmware · CODE/KEEB
 
-Firmware ZMK para el **Sofle Choc inalámbrico RGB** de CODE/KEEB:
-nice!nano v2, pantallas OLED verticales, 30 LEDs RGB por mitad
-(29 per-key + 1 en el encoder), 2 encoders rotatorios y ZMK Studio.
+ZMK firmware for the CODE/KEEB **Sofle Choc wireless RGB**: nice!nano v2,
+vertical OLED displays, 30 RGB LEDs per half (29 per-key + 1 on the
+encoder), 2 rotary encoders and ZMK Studio.
 
-Incluye un **motor de efectos RGB propio** (vendorizado y muy ampliado a
-partir de [zmk-rgb-fx], MIT) y un **fork del módulo de pantallas**
-([codekeeb/zmk-nice-oled], rama `selectable`) con funciones que no existen
-en los originales.
+It bundles a **custom RGB effect engine** (vendored and heavily extended
+from [zmk-rgb-fx], MIT) and a **fork of the display module**
+([codekeeb/zmk-nice-oled], `selectable` branch) with features that don't
+exist in the originals.
 
 ---
 
-## ⌨️ Controles
+## ⌨️ Controls
 
 ### Encoders
 
-| Gesto                        | Capa base            | LOWER                  | RAISE       |
-| ---------------------------- | -------------------- | ---------------------- | ----------- |
-| **Girar encoder izquierdo**  | Volumen              | Modo RGB ±             | Brillo ±    |
-| **Girar encoder derecho**    | Avance página rápido | Tono ±20°              | Velocidad ± |
-| **Click encoder izquierdo**  | Silencio (mute)      | RGB on/off             | —           |
-| **Click encoder derecho**    | Corte de corriente de los LEDs (`EP_TOG`) | Siguiente animación OLED | — |
+| Gesture                    | Base layer          | LOWER            | RAISE       |
+| -------------------------- | ------------------- | ---------------- | ----------- |
+| **Turn left encoder**      | Volume              | RGB mode ±       | Brightness ±|
+| **Turn right encoder**     | Fast page scroll    | Hue ±20°         | Speed ±     |
+| **Press left encoder**     | Mute                | RGB on/off       | —           |
+| **Press right encoder**    | LED power cut (`EP_TOG`) | Next OLED animation | —      |
 
-### Teclas (capa LOWER, mitad izquierda)
+### Keys (LOWER layer, left half)
 
-| Tecla | Función                    |
-| ----- | -------------------------- |
-| R     | RGB on/off                 |
-| T     | Siguiente modo RGB         |
-| F / G | Tono − / +                 |
-| V / B | Brillo − / +               |
+| Key   | Function      |
+| ----- | ------------- |
+| R     | RGB on/off    |
+| T     | Next RGB mode |
+| F / G | Hue − / +     |
+| V / B | Brightness − /|
 
-### Otras
+### Other
 
-- **Caps Word**: RAISE + G (donde estaba CapsLock) — escribe EN MAYÚSCULAS
-  hasta el primer espacio.
-- **ZMK Studio**: la mitad izquierda lleva Studio; conectar por USB, abrir
-  [zmk.studio](https://zmk.studio) y desbloquear con LOWER + Z
-  (`studio_unlock`) para **remapear en vivo sin flashear**.
+- **Caps Word**: RAISE + G (where CapsLock used to be) — types UPPERCASE
+  until the next space.
+- **ZMK Studio**: the left half ships Studio; connect over USB, open
+  [zmk.studio](https://zmk.studio) and unlock with LOWER + Z
+  (`studio_unlock`) to **remap live without flashing**.
 
-Todos los ajustes RGB (modo, tono, brillo, velocidad, on/off) y la
-animación OLED elegida **persisten en flash**: sobreviven a apagados y
-reflasheos (solo los borra `settings_reset`).
+All RGB settings (mode, hue, brightness, speed, on/off) and the selected
+OLED animation **persist in flash**: they survive power cycles and
+reflashes (only `settings_reset` clears them).
 
 ---
 
-## 🌈 Sistema RGB
+## 🌈 RGB system
 
-Motor de animaciones por coordenadas: cada LED tiene posición (x,y) en un
-lienzo **continuo de 0 a 240 que abarca ambas mitades** (izquierda 0-117,
-derecha 123-240), así los degradados horizontales cruzan la costura sin
-salto. Los mapas viven en `config/sofle_left.overlay` y
+Coordinate-based animation engine: every LED has an (x,y) position on a
+**continuous canvas from 0 to 240 spanning both halves** (left 0-117,
+right 123-240), so horizontal gradients cross the seam without a jump.
+The maps live in `config/sofle_left.overlay` and
 `config/sofle_right.overlay`.
 
-### Modos (ciclo con LOWER + encoder izquierdo)
+### Modes (cycle with LOWER + left encoder)
 
-| #  | Modo         | Descripción                                                |
-| -- | ------------ | ---------------------------------------------------------- |
-| 1  | Gradient     | Degradado 3 colores animado en diagonal                     |
-| 2  | Ripple       | Ondas azules desde cada tecla pulsada (por mitad)           |
-| 3  | Sparkle      | Destellos cian/magenta                                      |
-| 4  | Solid        | Color uniforme ciclando ámbar↔rosa                          |
-| 5  | Fire         | Gradiente vertical rojo-naranja-amarillo, rápido            |
-| 6  | Ocean        | Azul-cian-verde horizontal, muy lento                       |
-| 7  | Sparkle oro  | Destellos dorados rápidos                                   |
-| 8  | Ripple rosa  | Ondas rosas más rápidas y anchas                            |
-| 9  | Sunset       | **Estático**: naranja-coral-rosa-morado-azul (S100, arco justo) |
-| 10 | Heatmap      | Cada tecla se enciende al pulsarla y se desvanece (~1,2 s)  |
+| #  | Mode         | Description                                                 |
+| -- | ------------ | ----------------------------------------------------------- |
+| 1  | Gradient     | 3-color gradient animated diagonally                         |
+| 2  | Ripple       | Blue waves from each pressed key (per half)                  |
+| 3  | Sparkle      | Cyan/magenta sparkles                                        |
+| 4  | Solid        | Uniform color cycling amber↔pink                             |
+| 5  | Fire         | Vertical red-orange-yellow gradient, fast                    |
+| 6  | Ocean        | Blue-cyan-green horizontal, very slow                        |
+| 7  | Gold sparkle | Fast golden sparkles                                         |
+| 8  | Pink ripple  | Faster, wider pink waves                                     |
+| 9  | Sunset       | **Static**: orange-coral-pink-purple-blue (S100, tight arc)  |
+| 10 | Heatmap      | Each key lights up when pressed and fades out (~1.2 s)       |
 
-### Controles globales (afectan a todos los modos)
+### Global controls (affect every mode)
 
-- **Tono**: offset de 0-359° aplicado en la conversión HSL→RGB — rota la
-  paleta completa de cualquier modo sin destruirla. Pasos de 20°.
-- **Brillo**: 5 pasos (mínimo 1: apagar es cosa del toggle — un brillo 0
-  persistido dejaba el teclado negro para siempre).
-- **Velocidad**: 5 pasos (0.25×–4×) escalando el periodo del tick de
-  animación — acelera/frena todos los efectos por igual.
-- **Color por capa**: LOWER pinta los **pulgares de fucsia** y muestra el
-  **panel Bluetooth**: ESC (BT_CLR) en rojo, perfiles en las teclas 1-5 en
-  amarillo y el **perfil activo en verde**. RAISE pinta los pulgares de
-  **verde** e ilumina las **flechas (I/J/K/L) en amarillo anaranjado** en
-  la derecha. Colores fijos (no rotan con el tono); el estado viaja a la
-  derecha por el canal split (behavior `rgblay`).
-- **Auto-off**: a los 60 s sin actividad (`CONFIG_ZMK_IDLE_TIMEOUT`) los
-  efectos paran y el strip se apaga en negro; revive con cualquier tecla.
-  Cada mitad gestiona su propia inactividad.
+- **Hue**: a 0-359° offset applied in the HSL→RGB conversion — rotates the
+  full palette of any mode without destroying it. 20° steps.
+- **Brightness**: 5 steps (minimum 1: turning off is the toggle's job — a
+  persisted brightness of 0 left the keyboard black forever).
+- **Speed**: 5 steps (0.25×–4×) scaling the animation tick period —
+  speeds up/slows down all effects equally.
+- **Per-layer tint**: LOWER paints **all thumb LEDs pink**. RAISE paints
+  the thumbs **purple** and shows the **Bluetooth panel** (BT_CLR red,
+  profiles 0-4 yellow, **active profile green**) plus the **arrow cluster
+  (I/J/K/L) in orange-yellow** on the right half. Fixed colors (they don't
+  rotate with the hue offset); the state travels to the right half over
+  the split behavior channel (`rgblay`).
+- **Auto-off**: after 60 s idle (`CONFIG_ZMK_IDLE_TIMEOUT`) the effects
+  stop and the strip goes black; any keypress revives it. Each half
+  manages its own idle state.
 
-### Editar paletas y velocidades
+### Editing palettes and speeds
 
-Cada modo es un nodo en los dos `sofle_*.overlay` (¡editar AMBOS!):
+Every mode is a node in both `sofle_*.overlay` files (edit BOTH!):
 
-- `colors = <HSL(tono, saturación, luminosidad) ...>` — tono 0-359
-  (0 rojo, 60 amarillo, 120 verde, 180 cian, 240 azul, 300 magenta);
-  S=100 y L=50 es el color puro más vivo (L>50 lava hacia blanco).
-- `duration` — segundos por ciclo (gradient/solid/sparkle) o ms de viaje
-  de onda (ripple) o ms de desvanecido (heatmap). Menor = más rápido.
-- `gradient-width` — con N colores hay N segmentos (el último vuelve al
-  primero); para mostrar el arco completo sin repetición en el teclado
-  (240 unidades): `width = 240 * N / (N-1)`.
-- En degradados con tonos cálidos: el rojo (330°-30°) es perceptualmente
-  plano — insertar una parada intermedia (p. ej. coral 355°) da más tonos
-  visibles a ese tramo (así está hecho el Sunset).
+- `colors = <HSL(hue, saturation, lightness) ...>` — hue 0-359
+  (0 red, 60 yellow, 120 green, 180 cyan, 240 blue, 300 magenta);
+  S=100 and L=50 is the purest, most vivid color (L>50 washes to white).
+- `duration` — seconds per cycle (gradient/solid/sparkle), ms of wave
+  travel (ripple) or ms of fade-out (heatmap). Lower = faster.
+- `gradient-width` — with N colors there are N segments (the last wraps
+  to the first); to show the full arc without repeating on the keyboard
+  (240 units): `width = 240 * N / (N-1)`.
+- For warm gradients: red (330°-30°) is perceptually flat — inserting an
+  intermediate stop (e.g. coral 355°) gives more visible hues on that
+  stretch (that's how Sunset is built).
 
-### Arquitectura y fixes sobre zmk-rgb-fx original
+### Architecture and fixes over upstream zmk-rgb-fx
 
-Código en `src/` + `dts/` + `include/` (el repo es un módulo Zephyr).
-Sobre el original se corrigió/añadió: typo que anulaba `key-pixels`, tabla
-de distancias del ripple sin rellenar, `locality` global del behavior,
-arranque del efecto entrante al cambiar de modo, saneo del estado
-persistido, y las funciones de tono/velocidad/tinte-por-capa/auto-off/
-heatmap descritas arriba.
-
----
-
-## 🖥️ Pantallas OLED
-
-Módulo: [codekeeb/zmk-nice-oled] rama **`selectable`** (fork de
-[mctechnology17/zmk-nice-oled] con mejoras propias).
-
-- **Izquierda (central)**: batería gráfica, salida BT/USB, capa, perfil,
-  y **Bongo Cat** aporreando al ritmo de tus WPM.
-- **Derecha (periférico)**: batería gráfica + **animación seleccionable en
-  caliente** (LOWER + click encoder derecho, persiste):
-  1. Gema/cristal giratoria · 2. Gato · 3. Cabeza 3D · 4. Astronauta ·
-  5. Pokémon · 6. **Logo CODE/KEEB** (estático)
-- **Batería gráfica**: icono de pila con relleno proporcional + rayo al
-  cargar (`NICE_OLED_WIDGET_BATTERY_GRAPHIC`), en vez del número.
-
-Mejoras del fork sobre el módulo original: selector de animación en
-caliente con persistencia (behavior `&oledanim` + evento + settings),
-batería gráfica, default de `ANIMATION_PERIPHERAL_MS` que faltaba (rompía
-el build con Smart Battery), y el asset del logo.
+Code lives in `src/` + `dts/` + `include/` (the repo is also a Zephyr
+module). On top of upstream we fixed/added: a typo that voided
+`key-pixels`, the ripple distance table left unfilled, global `locality`
+on the behavior, starting the incoming effect on mode change, sanitizing
+the persisted state, and the hue/speed/per-layer-tint/auto-off/heatmap
+features described above.
 
 ---
 
-## 🔋 Batería
+## 🖥️ OLED displays
 
-- **Porcentaje real**: driver propio (`src/battery_nrf_vddh_curve.c`) con
-  curva de descarga LiPo interpolada (21 puntos) en vez de la recta
-  4,20→3,45 V de ZMK que infravalora la carga casi toda la descarga.
-  El % depende SOLO del voltaje: los mAh de la celda no intervienen.
-- Con el USB conectado, VDDH ve el cargador y marca ~100%: solo es fiable
-  a batería.
-- Con RGB encendido el voltaje cae bajo carga (sag) y el % baja unos
-  puntos; se recupera al apagarlo. Física, no bug.
-- `CONFIG_BOARD_ENABLE_DCDC_HV=y`: ZMK ≥ v0.3 lo desactivó por defecto
-  (clones sin inductor); en placas con inductor conviene activarlo.
-- El **brillo RGB inicial es bajo (20%)** a propósito: 30 LEDs a plena
-  potencia piden ~500 mA y pueden desplomar el raíl con celdas pequeñas.
+Module: [codekeeb/zmk-nice-oled] `selectable` branch (fork of
+[mctechnology17/zmk-nice-oled] with custom improvements).
+
+- **Left (central)**: graphic battery, BT/USB output, layer, profile, and
+  **Bongo Cat** banging along to your WPM.
+- **Right (peripheral)**: graphic battery + **runtime-switchable animation**
+  (LOWER + press right encoder, persists):
+  1. Rotating gem/crystal · 2. Cat · 3. 3D head · 4. Spaceman ·
+  5. Pokemon · 6. **CODE/KEEB logo** (static)
+- **Graphic battery**: battery icon with proportional fill + bolt while
+  charging (`NICE_OLED_WIDGET_BATTERY_GRAPHIC`), instead of the number.
+
+Fork improvements over the upstream module: runtime animation selector
+with persistence (behavior `&oledanim` + event + settings), graphic
+battery, a missing default for `ANIMATION_PERIPHERAL_MS` (which broke the
+build with Smart Battery), and the logo asset.
 
 ---
 
-## 🔧 Hardware: pines por variante de PCB del taller
+## 🔋 Battery
 
-> **¡No mezclar!** Cada variante usa un pin de datos distinto.
+- **Real percentage**: custom driver (`src/battery_nrf_vddh_curve.c`) with
+  an interpolated LiPo discharge curve (21 points) instead of ZMK's
+  4.20→3.45 V straight line, which underreports charge for most of the
+  battery's life. The % depends ONLY on voltage: the cell's mAh don't
+  matter.
+- With USB connected, VDDH sees the charger and reads ~100%: only reliable
+  on battery.
+- With RGB on, the voltage sags under load and the % drops a few points;
+  it recovers when RGB is off. Physics, not a bug.
+- `CONFIG_BOARD_ENABLE_DCDC_HV=y`: ZMK ≥ v0.3 disabled it by default (for
+  inductor-less clones); on boards with an inductor it's worth enabling.
+- The **initial RGB brightness is low (20%)** on purpose: 30 LEDs at full
+  power draw ~500 mA and can collapse the rail with small cells.
 
-| PCB                                  | Pin datos LED | LEDs por mitad |
-| ------------------------------------ | ------------- | -------------- |
-| Sofle RGB MX wireless                | P0.06         | 29             |
-| Sofle Choc wired                     | P0.06         | 29             |
-| **Sofle Choc wireless** (este repo)  | **P0.08**     | **30** (5º = LED del encoder) |
+---
 
-Orden de la cadena (esta variante): columna interior de arriba abajo
-(1-4), **LED del encoder (5º)**, pulgares, y serpentina hasta la pinky.
+## 🔧 Hardware: data pins per workshop PCB variant
 
-> ⚠️ **El bloque `&spi3`/pinctrl del keymap NO es redundante**: el shield
-> `sofle` de ZMK ≥ v0.3 trae su propio `boards/nice_nano_v2.overlay` con
-> MOSI en P0.06 y chain 36, y se aplica DESPUÉS del overlay del config.
-> El keymap es lo último que entra al devicetree: solo desde ahí se impone
-> el pin real (P0.08). Se borró una vez por "duplicado" y costó un día
-> entero de depuración (verificado leyendo `PSEL.MOSI` del SPIM3 en
-> caliente por USB logging).
+> **Don't mix them up!** Each variant uses a different data pin.
+
+| PCB                                 | LED data pin | LEDs per half |
+| ----------------------------------- | ------------ | ------------- |
+| Sofle RGB MX wireless               | P0.06        | 29            |
+| Sofle Choc wired                    | P0.06        | 29            |
+| **Sofle Choc wireless** (this repo) | **P0.08**    | **30** (5th = encoder LED) |
+
+Chain order (this variant): inner column top-to-bottom (1-4), **encoder
+LED (5th)**, thumbs, then serpentine out to the pinky.
+
+> ⚠️ **The keymap's `&spi3`/pinctrl block is NOT redundant**: ZMK's `sofle`
+> shield (≥ v0.3) ships its own `boards/nice_nano_v2.overlay` with MOSI on
+> P0.06 and chain 36, applied AFTER the config overlay. The keymap is the
+> last thing to enter the devicetree: only from there can the real pin
+> (P0.08) be enforced. It was once deleted as "duplicate" and cost a full
+> day of debugging (verified by reading the live `PSEL.MOSI` of SPIM3 over
+> USB logging).
 
 ---
 
 ## 🏗️ Builds
 
-Push a `main` → GitHub Actions publica el artefacto `firmware` con:
-`sofle_left` (con ZMK Studio), `sofle_right`, `settings_reset`, y dos
-variantes de depuración con logs USB (`sofle_left_usb_logging`,
+Push to `main` → GitHub Actions publishes the `firmware` artifact with:
+`sofle_left` (with ZMK Studio), `sofle_right`, `settings_reset`, and two
+USB-logging debug variants (`sofle_left_usb_logging`,
 `sofle_right_usb_logging`).
 
-**Versiones clavadas** para builds reproducibles (`config/west.yml`):
+**Pinned versions** for reproducible builds (`config/west.yml`):
 
-- **ZMK `v0.3`** (la rama `main` cambió a Zephyr 4.1 en dic-2025 y renombró
-  los boards; los builds se rompen solos si no se pinea). El workflow
-  también va a `@v0.3`.
-- **Zephyr pineado por SHA**: la rama `v3.5.0+zmk-fixes` del fork de
-  Zephyr es móvil (recibió un bump del HAL de Nordic en 2025); se
-  sobreescribe el proyecto desde este manifest (el top-level gana al
-  import).
-- **zmk-nice-oled**: fork propio, rama `selectable`.
+- **ZMK `v0.3`** (the `main` branch moved to Zephyr 4.1 in Dec 2025 and
+  renamed the boards; builds break by themselves if not pinned). The
+  workflow is also pinned to `@v0.3`.
+- **Zephyr pinned by SHA**: the `v3.5.0+zmk-fixes` branch of ZMK's Zephyr
+  fork is a moving target (it got a Nordic HAL bump in 2025); the project
+  is overridden from this manifest (top-level wins over the import).
+- **zmk-nice-oled**: our own fork, `selectable` branch.
 
-### Flashear
+### Flashing
 
-Doble pulsación de reset → unidad USB → copiar el `.uf2`. Tras cambios de
-firmware con estado raro: `settings_reset` en ambas mitades y reflashear
-(borra también los emparejamientos BT).
+Double-tap reset → USB drive → copy the `.uf2`. After firmware changes
+with weird state: `settings_reset` on both halves and reflash (this also
+clears BT pairings).
 
-### Depurar
+### Debugging
 
-Flashear la variante `*_usb_logging`, conectar por USB y leer el puerto
-serie (VID 0x1D50, 115200). Imprime el pipeline RGB (`fx tick` con los
-valores enviados), el estado de `ext_power` y **los registros reales del
-SPIM3** (`PSEL.MOSI` = pin físico en uso) — la herramienta que resolvió
-el apagón del RGB.
+Flash the `*_usb_logging` variant, connect over USB and read the serial
+port (VID 0x1D50, 115200). It prints the RGB pipeline (`fx tick` with the
+values being sent), the `ext_power` state, and **the real SPIM3 registers**
+(`PSEL.MOSI` = physical pin in use) — the tool that solved the RGB
+blackout.
 
 ---
 
-## 🚑 Problemas conocidos y lecciones
+## 🚑 Known issues and lessons
 
-| Síntoma | Causa / solución |
+| Symptom | Cause / fix |
 | --- | --- |
-| Teclas RGB/OLED solo actúan en la mitad izquierda | El transporte split trunca el nombre del behavior a **8 caracteres**. Nodos de behavior siempre ≤8 (`rgbfx`, `rgblay`, `oledanim`). |
-| Mitades "conectadas" pero la derecha no escribe | Bond a medias (log: `Link is not encrypted`). Re-emparejar con **todos los demás teclados ZMK del taller apagados** (los centrales ajenos secuestran periféricos). |
-| LEDs muertos con SPI aparentemente OK | Pin de datos pisado por el overlay del shield (ver aviso arriba) o raíl sin corriente. Verificar con el build de logging (registros SPIM3). |
-| RGB negro que no responde a nada | Estado persistido tóxico (brillo 0 / apagado). Ya se sanea al arrancar; si acaso, `settings_reset`. |
-| Build roto tras crear repo nuevo | ZMK sin pinear. Copiar el `west.yml` de aquí. |
+| RGB/OLED keys only act on the left half | The split transport truncates the behavior name to **8 characters**. Behavior nodes must always be ≤8 (`rgbfx`, `rgblay`, `oledanim`). |
+| Halves "connected" but the right one doesn't type | Half-formed bond (log: `Link is not encrypted`). Re-pair with **every other workshop ZMK keyboard powered off** (foreign centrals hijack peripherals). |
+| Dead LEDs with SPI apparently OK | Data pin overridden by the shield overlay (see note above) or rail with no power. Verify with the logging build (SPIM3 registers). |
+| Black RGB that doesn't respond to anything | Toxic persisted state (brightness 0 / off). It's now sanitized at boot; if needed, `settings_reset`. |
+| Build broken after creating a new repo | ZMK not pinned. Copy the `west.yml` from here. |
 
 ---
 
-## Créditos
+## Credits
 
-- Motor RGB basado en [zmk-rgb-fx] de Kuba Birecki (MIT) — muy modificado.
-- Pantallas basadas en [mctechnology17/zmk-nice-oled] (MIT) — vía fork propio.
+- RGB engine based on [zmk-rgb-fx] by Kuba Birecki (MIT) — heavily modified.
+- Displays based on [mctechnology17/zmk-nice-oled] (MIT) — via our own fork.
 - [ZMK Firmware](https://zmk.dev) `v0.3`.
 
 [zmk-rgb-fx]: https://github.com/crystalplanet/zmk-rgb-fx

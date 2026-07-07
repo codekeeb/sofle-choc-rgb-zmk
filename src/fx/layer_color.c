@@ -1,13 +1,13 @@
 /*
  * SPDX-License-Identifier: MIT
  *
- * Tinte por capa: mientras LOWER (rosa) o RAISE (morado) estan activas,
- * TODOS los LEDs de los pulgares de ambas mitades se pintan del color de
- * aviso. En RAISE ademas el panel Bluetooth (BT_CLR rojo, perfiles 0-4
- * amarillo con el activo en verde) y el cluster de flechas IJKL en amarillo.
- * Las capas solo las conoce la mitad central, asi que el estado se reenvia
- * al periferico por el canal de behaviors del split (behavior `rgblay`,
- * nombre <= 8 chars).
+ * Per-layer tint: while LOWER (pink) or RAISE (purple) is active,
+ * ALL thumb LEDs on both halves are painted with the warning color.
+ * In RAISE the Bluetooth panel (BT_CLR red, profiles 0-4 yellow with the
+ * active one green) and the IJKL arrow cluster in yellow are also shown.
+ * Only the central half knows the layers, so the state is relayed to the
+ * peripheral over the split behavior channel (behavior `rgblay`,
+ * name <= 8 chars).
  */
 
 #include <zephyr/device.h>
@@ -27,28 +27,28 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-/* 0 = sin tinte (capa base); indices en la tabla de colores. */
+/* 0 = no tint (base layer); indices into the color table. */
 static uint8_t layer_tint = 0;
 
-/* Colores de aviso por capa: [1] = LOWER (rosa), [2] = RAISE (morado). */
+/* Per-layer warning colors: [1] = LOWER (pink), [2] = RAISE (purple). */
 static const struct zmk_color_hsl layer_tint_colors[] = {
     {.h = 0, .s = 0, .l = 0},
-    {.h = 330, .s = 100, .l = 50},  /* LOWER = rosa */
-    {.h = 270, .s = 100, .l = 50},  /* RAISE = morado */
+    {.h = 330, .s = 100, .l = 50},  /* LOWER = pink */
+    {.h = 270, .s = 100, .l = 50},  /* RAISE = purple */
 };
 
-/* Todos los LEDs de los pulgares (mismos indices de cadena en ambas mitades). */
+/* All thumb LEDs (same chain indices on both halves). */
 static const uint8_t layer_tint_thumb_px[] = {5, 6, 7, 16, 17};
 
-/* Cluster de flechas en raise: I(UP) J(LEFT) K(DOWN) L(RIGHT).
- * Solo existe en la mitad derecha (periferico). */
+/* Arrow cluster in raise: I(UP) J(LEFT) K(DOWN) L(RIGHT).
+ * Only exists on the right half (peripheral). */
 static const uint8_t layer_tint_arrow_px[] = {13, 9, 14, 19};
 
-/* Amarillo anaranjado saturado para las flechas. */
+/* Saturated orange-yellow for the arrows. */
 static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 40, .s = 100, .l = 50};
 
-/* Colores de aviso FIJOS: compensar el offset de tono global para que
- * no roten con el ajuste de tono. */
+/* FIXED warning colors: compensate the global hue offset so they
+ * don't rotate with the hue adjustment. */
 static struct zmk_color_rgb tint_to_rgb(struct zmk_color_hsl hsl) {
     struct zmk_color_rgb rgb;
 
@@ -65,8 +65,8 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
 
     struct zmk_color_rgb rgb = tint_to_rgb(layer_tint_colors[layer_tint]);
 
-    /* TODOS los pulgares de esta mitad se pintan del color de la capa
-     * (LOWER rosa / RAISE morado), en ambas mitades. */
+    /* ALL thumbs on this half are painted with the layer color
+     * (LOWER pink / RAISE purple), on both halves. */
     for (size_t j = 0; j < ARRAY_SIZE(layer_tint_thumb_px); j++) {
         if (layer_tint_thumb_px[j] < num_pixels) {
             pixels[layer_tint_thumb_px[j]].value = rgb;
@@ -74,7 +74,7 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     }
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    /* En RAISE, iluminar el cluster de flechas (solo mitad derecha). */
+    /* In RAISE, light up the arrow cluster (right half only). */
     if (layer_tint == 2) {
         struct zmk_color_rgb flechas = tint_to_rgb(layer_tint_arrow_color);
 
@@ -87,11 +87,11 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
 #endif
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
-    /* Panel Bluetooth en RAISE: BT_CLR (esquina sup. izq.) en rojo,
-     * perfiles 0-4 en amarillo y el perfil ACTIVO en verde. */
+    /* Bluetooth panel in RAISE: BT_CLR (top-left corner) red,
+     * profiles 0-4 yellow and the ACTIVE profile green. */
     if (layer_tint == 2) {
-        static const uint8_t bt_clr_px = 29;                 /* esquina sup. izq. (BT_CLR) */
-        static const uint8_t bt_prof_px[] = {22, 21, 12, 11, 0}; /* teclas 1-5 */
+        static const uint8_t bt_clr_px = 29;                 /* top-left corner (BT_CLR) */
+        static const uint8_t bt_prof_px[] = {22, 21, 12, 11, 0}; /* keys 1-5 */
 
         if (bt_clr_px < num_pixels) {
             pixels[bt_clr_px].value =
@@ -122,7 +122,7 @@ static void layer_tint_set(uint8_t tint) {
     zmk_rgb_fx_request_frames(1);
 }
 
-/* ---- behavior rgblay: recibe el estado en el periferico ---- */
+/* ---- behavior rgblay: receives the state on the peripheral ---- */
 
 #define DT_DRV_COMPAT zmk_behavior_rgb_fx_layer
 
@@ -149,14 +149,14 @@ BEHAVIOR_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL,
 
 #endif /* DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT) */
 
-/* ---- central: escucha los cambios de capa y reenvia al periferico ---- */
+/* ---- central: listen to layer changes and relay to the peripheral ---- */
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
 
 #include <zmk/split/central.h>
 
 static int layer_color_listener(const zmk_event_t *eh) {
-    /* Cambio de perfil BT con RAISE apretada: redibujar el panel. */
+    /* BT profile change while RAISE is held: redraw the panel. */
     if (as_zmk_ble_active_profile_changed(eh) != NULL) {
         if (layer_tint == 2) {
             zmk_rgb_fx_request_frames(1);

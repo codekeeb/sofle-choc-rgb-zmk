@@ -73,9 +73,9 @@ static struct led_rgb px_buffer[DT_INST_PROP_LEN(0, pixels)];
  */
 static uint32_t fx_timer_countdown = 0;
 
-/* Velocidad global: escala el periodo del tick de animacion. Paso 2 = 1x.
- * Todos los efectos avanzan por-frame, asi que cambiar el ritmo de frames
- * los acelera/frena todos por igual. */
+/* Global speed: scales the animation tick period. Step 2 = 1x.
+ * All effects advance per-frame, so changing the frame rate
+ * speeds them up/slows them down equally. */
 static const uint16_t fx_speed_period_ms[] = {
     (1000 / CONFIG_ZMK_RGB_FX_FPS) * 4, /* 0: 0.25x */
     (1000 / CONFIG_ZMK_RGB_FX_FPS) * 2, /* 1: 0.5x  */
@@ -100,7 +100,7 @@ void zmk_rgb_fx_speed_set(uint8_t step) {
  * Conditional implementation of zmk_rgb_fx_get_pixel_by_key_position
  * if key-pixels is set.
  */
-/* Upstream tenia un typo aqui (key_position) que anulaba key-pixels. */
+/* Upstream had a typo here (key_position) that voided key-pixels. */
 #if DT_INST_NODE_HAS_PROP(0, key_pixels)
 static const uint8_t pixels_by_key_position[] = DT_INST_PROP(0, key_pixels);
 
@@ -134,7 +134,7 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
 
     rgb_fx_render_frame(fx_root, &pixels[0], pixels_size);
 
-    /* Tinte de capa (fucsia lower / verde raise), pisa el frame entero. */
+    /* Per-layer tint (lower/raise), overwrites the whole frame. */
     zmk_rgb_fx_layer_color_apply(&pixels[0], pixels_size);
 
     for (size_t i = 0; i < pixels_size; ++i) {
@@ -147,8 +147,8 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
     }
 
 #ifdef CONFIG_ZMK_USB_LOGGING
-    /* DEPURACION: los 3 primeros segundos, rojo fijo saltandose por completo
-     * el pipeline de efectos. */
+    /* DEBUG: for the first 3 seconds, solid red bypassing the effect
+     * pipeline entirely. */
     if (tick_count < 90) {
         for (size_t i = 0; i < pixels_size; ++i) {
             px_buffer[i].r = 60;
@@ -183,7 +183,7 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
                 px_buffer[14].b, ext);
 #ifdef CONFIG_SOC_NRF52840
         /* DEPURACION: registros reales del SPIM3 (base 0x4002F000).
-         * PSEL: bit31=1 significa "desconectado"; bits bajos = numero de pin. */
+         * PSEL: bit31=1 means "disconnected"; low bits = pin number. */
         LOG_INF("SPIM3 ENABLE=%08x PSEL.SCK=%08x PSEL.MOSI=%08x FREQ=%08x ready=%d",
                 *(volatile uint32_t *)0x4002F500, *(volatile uint32_t *)0x4002F508,
                 *(volatile uint32_t *)0x4002F50C, *(volatile uint32_t *)0x4002F524,
@@ -218,7 +218,7 @@ void zmk_rgb_fx_request_frames(uint32_t frames) {
     fx_timer_countdown = frames;
 }
 
-/* Apagar fisicamente el strip (frame en negro). */
+/* Physically turn off the strip (black frame). */
 static void zmk_rgb_fx_blank(void) {
     memset(px_buffer, 0, sizeof(px_buffer));
 
@@ -243,8 +243,8 @@ static int zmk_rgb_fx_on_activity_state_changed(const zmk_event_t *event) {
         rgb_fx_start(fx_root);
         zmk_rgb_fx_request_frames(1);
         return 0;
-    /* Auto-off: en IDLE (CONFIG_ZMK_IDLE_TIMEOUT sin actividad) se paran
-     * los efectos y se apaga el strip; ACTIVE los revive. */
+    /* Auto-off: on IDLE (CONFIG_ZMK_IDLE_TIMEOUT idle) the effects stop
+     * and the strip turns off; ACTIVE revives them. */
     case ZMK_ACTIVITY_IDLE:
     case ZMK_ACTIVITY_SLEEP:
         rgb_fx_stop(fx_root);

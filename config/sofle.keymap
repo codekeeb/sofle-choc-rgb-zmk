@@ -12,32 +12,32 @@
 
 / {
     behaviors {
-        // Cicla la animacion de la OLED derecha (gema/gato/cabeza/astronauta)
+        // Cycles the right OLED animation (gem/cat/head/spaceman)
         oledanim: oledanim {
             compatible = "zmk,behavior-oled-anim";
             #binding-cells = <0>;
         };
 
-        // Encoders como controles RGB (giro horario = primera binding)
-        rgbenc_m: rgbenc_m { // lower + encoder izq: modo
+        // Encoders as RGB controls (clockwise = first binding)
+        rgbenc_m: rgbenc_m { // lower + left encoder: mode
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
             bindings = <&rgbfx RGBFX_NEXT(0)>, <&rgbfx RGBFX_PREVIOUS(0)>;
         };
 
-        rgbenc_h: rgbenc_h { // lower + encoder der: tono
+        rgbenc_h: rgbenc_h { // lower + right encoder: hue
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
             bindings = <&rgbfx RGBFX_HUE_UP(0)>, <&rgbfx RGBFX_HUE_DOWN(0)>;
         };
 
-        rgbenc_b: rgbenc_b { // raise + encoder izq: brillo
+        rgbenc_b: rgbenc_b { // raise + left encoder: brightness
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
             bindings = <&rgbfx RGBFX_BRIGHTEN(0)>, <&rgbfx RGBFX_DIM(0)>;
         };
 
-        rgbenc_s: rgbenc_s { // raise + encoder der: velocidad
+        rgbenc_s: rgbenc_s { // raise + right encoder: speed
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
             bindings = <&rgbfx RGBFX_SPD_UP(0)>, <&rgbfx RGBFX_SPD_DOWN(0)>;
@@ -66,15 +66,15 @@
     };
 };
 
-/* IMPORTANTE - NO BORRAR ESTE BLOQUE AUNQUE PAREZCA "DUPLICADO":
- * el shield sofle de ZMK (>= v0.3) trae su propio
- * boards/nice_nano_v2.overlay con MOSI en P0.06 y chain 36, y se aplica
- * DESPUES de config/boards/nice_nano_v2.overlay, pisandolo. El keymap es
- * lo ultimo que entra al devicetree, asi que solo desde aqui se puede
- * imponer el pin real de esta variante (P0.08) y la cadena de 30 LEDs.
- * (Ya paso una vez: se borro por "redundante" y los LEDs murieron durante
- * un dia entero de depuracion. Verificado leyendo PSEL.MOSI del SPIM3 en
- * caliente via USB logging.) */
+/* IMPORTANT - DO NOT DELETE THIS BLOCK EVEN IF IT LOOKS "DUPLICATE":
+ * ZMK's sofle shield (>= v0.3) ships its own
+ * boards/nice_nano_v2.overlay with MOSI on P0.06 and chain 36, applied
+ * AFTER config/boards/nice_nano_v2.overlay, overriding it. The keymap is
+ * the last thing to enter the devicetree, so only from here can we
+ * enforce this variant's real pin (P0.08) and the 30-LED chain.
+ * (It happened once: deleted as "redundant" and the LEDs died for
+ * a full day of debugging. Verified by reading SPIM3's PSEL.MOSI
+ * live over USB logging.) */
 
 #include <dt-bindings/led/led.h>
 
@@ -109,8 +109,8 @@
         reg = <0>; /* ignored, but necessary for SPI bindings */
         spi-max-frequency = <4000000>;
 
-        /* WS2812: 30 por mitad (col interior 1-4, LED del encoder 5o,
-         * pulgares y serpentina hasta la pinky) */
+        /* WS2812: 30 per half (inner col 1-4, encoder LED 5th,
+         * thumbs and serpentine out to the pinky) */
         chain-length = <30>;
         spi-one-frame = <0x70>;
         spi-zero-frame = <0x40>;
