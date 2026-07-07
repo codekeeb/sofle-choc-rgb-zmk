@@ -177,7 +177,7 @@
 // |     | UNDO | CUT  | COPY  | PASTE |      |       |        |  RGB |      |   1  |    2  |   3  |   -   |   /   |
 //              |      |       |       |      | SPACE |        | ENTER|      |   0  |    .  |   =  |
             bindings = <
-&bt BT_CLR &bt BT_SEL 0 &kp F2       &kp F3       &kp F4       &kp F5                              &trans    &kp LBKT  &kp RBKT &kp LPAR  &kp RPAR      &kp DEL
+&bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4                        &trans    &kp LBKT  &kp RBKT &kp LPAR  &kp RPAR      &kp DEL
 &trans     &trans       &trans       &trans       &trans       &trans                              &kp PG_UP &kp N7    &kp N8   &kp N9    &kp PRCNT     &kp BSPC
 &trans     &trans       &trans       &trans       &trans       &trans                              &kp PG_DN &kp N4    &kp N5   &kp N6    &kp KP_PLUS   &kp KP_MULTIPLY
 &trans     &kp K_UNDO   &kp K_CUT    &kp K_COPY   &kp K_PASTE  &trans  &trans   &rgbfx RGBFX_TOGGLE(0)  &trans    &kp N1   &kp N2    &kp N3        &kp KP_MINUS  &kp KP_SLASH
