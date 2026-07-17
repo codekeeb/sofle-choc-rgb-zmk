@@ -39,9 +39,11 @@ exist in the originals.
   [zmk.studio](https://zmk.studio) and unlock with LOWER + Z
   (`studio_unlock`) to **remap live without flashing**.
 
-All RGB settings (mode, hue, brightness, speed, on/off) and the selected
-OLED animation **persist in flash**: they survive power cycles and
-reflashes (only `settings_reset` clears them).
+RGB settings (mode, hue, brightness, speed) and the selected OLED
+animation **persist in flash**: they survive power cycles and reflashes
+(only `settings_reset` clears them). The on/off switch does **not**
+persist: the RGB always starts **off** at boot, regardless of how it was
+left before power-off.
 
 ---
 

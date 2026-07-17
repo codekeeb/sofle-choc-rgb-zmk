@@ -69,6 +69,9 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
             if (data->current_fx_idx >= config->fx_size) {
                 data->current_fx_idx = 0;
             }
+            /* Never restore the saved on/off state: every boot starts
+             * with the RGB off until the user toggles it on. */
+            data->active = false;
             return 0;
         }
 
@@ -316,10 +319,9 @@ static const struct rgb_fx_api fx_control_group_api = {
     };                                                                                             \
                                                                                                    \
     static struct fx_control_group_data fx_control_group_##idx##_data = {                          \
-        .active = true,                                                                            \
-        /* Low initial brightness: 30 LEDs at full power draw ~500 mA, the   \
-         * rail collapses and the WS2812 reset (they go black). The          \
-         * historic underglow of this keyboard started at 10%. */            \
+        /* OFF by default: the user toggles it on. Also keeps 30 LEDs at   \
+         * full power (~500 mA) from slamming the rail at boot. */         \
+        .active = false,                                                                           \
         .brightness = 1,                                                                           \
         .current_fx_idx = 0,                                                                       \
         .speed_step = 2, /* 1x */                                                                  \
