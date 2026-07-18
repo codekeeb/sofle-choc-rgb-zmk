@@ -78,10 +78,11 @@ The maps live in `config/sofle_left.overlay` and
   persisted brightness of 0 left the keyboard black forever).
 - **Speed**: 5 steps (0.25×–4×) scaling the animation tick period —
   speeds up/slows down all effects equally.
-- **Per-layer tint**: LOWER paints **all thumb LEDs pink**. RAISE paints
-  the thumbs **purple** and shows the **Bluetooth panel** (BT_CLR red,
-  profiles 0-4 yellow, **active profile green**) plus the **arrow cluster
-  (I/J/K/L) in orange-yellow** on the right half. Fixed colors (they don't
+- **Per-layer tint**: LOWER paints **all thumb LEDs pink** and shows the
+  **arrow cluster (I/J/K/L) in orange-yellow** on the right half (that's
+  where the arrows live on this keymap). RAISE paints the thumbs
+  **purple** and shows the **Bluetooth panel** (BT_CLR red, profiles 0-4
+  yellow, **active profile green**). Fixed colors (they don't
   rotate with the hue offset); the state travels to the right half over
   the split behavior channel (`rgblay`).
 - **Auto-off**: after 60 s idle (`CONFIG_ZMK_IDLE_TIMEOUT`) the effects
