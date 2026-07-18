@@ -21,6 +21,11 @@ jobs:
           name: firmware
           path: firmware
 
+      - name: Drop debug firmware from the release
+        # The *_usb_logging variants are dev-only (chasing RGB/SPI bugs);
+        # end users should never flash them.
+        run: rm -f firmware/*_usb_logging*
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
