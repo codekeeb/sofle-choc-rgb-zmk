@@ -179,10 +179,11 @@ LED (5th)**, thumbs, then serpentine out to the pinky.
 
 ## 🏗️ Builds
 
-Push to `main` → GitHub Actions publishes the `firmware` artifact with:
-`sofle_left` (with ZMK Studio), `sofle_right`, `settings_reset`, and two
-USB-logging debug variants (`sofle_left_usb_logging`,
-`sofle_right_usb_logging`).
+Every push builds and publishes the `firmware` GitHub Actions artifact
+with: `sofle_left` (with ZMK Studio), `sofle_right`, `settings_reset`,
+and two USB-logging debug variants (`sofle_left_usb_logging`,
+`sofle_right_usb_logging`). Signing in to GitHub is required and the
+artifact expires after 90 days.
 
 **Pinned versions** for reproducible builds (`config/west.yml`):
 
@@ -193,6 +194,20 @@ USB-logging debug variants (`sofle_left_usb_logging`,
   fork is a moving target (it got a Nordic HAL bump in 2025); the project
   is overridden from this manifest (top-level wins over the import).
 - **zmk-nice-oled**: our own fork, `selectable` branch.
+
+### 📦 Releases (precompiled firmware)
+
+Pushing a tag like `v1.0.0` also publishes a **GitHub Release** with the
+same `.uf2` files attached — no GitHub account needed to download. See
+the [Releases page](https://github.com/codekeeb/sofle-choc-rgb-zmk/releases)
+for ready-to-flash firmware.
+
+To cut a new release (maintainers):
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
 
 ### Flashing
 
