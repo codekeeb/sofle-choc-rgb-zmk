@@ -47,9 +47,21 @@
         // Smooth mouse-wheel scrolling encoder (replaces the old
         // 20-PG_UP/DN-per-detent macro, which felt like a jarring
         // 20-page jump on every notch).
+        //
+        // tap-ms MUST exceed &msc's trigger-period-ms (16ms, see
+        // mouse_scroll.dtsi): sensor-rotate fires &msc as a press held for
+        // tap-ms then immediately released. &msc only emits an
+        // input_report_rel from its own delayed work loop, scheduled
+        // every trigger-period-ms -- at the default tap-ms (5ms) the
+        // release always lands before that first tick, so speed gets
+        // reset to 0 and NO scroll event is ever sent (confirmed via USB
+        // logging: behavior_input_two_axis_adjust_speed always followed
+        // by an immediate opposite adjustment back to 0, zero
+        // input_report_rel calls in the whole log).
         scroll_encoder: scroll_encoder {
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
+            tap-ms = <30>;
             bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
         };
     };
