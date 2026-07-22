@@ -18,7 +18,7 @@ exist in the originals.
 | Gesture                    | Base layer          | LOWER            | RAISE       |
 | -------------------------- | ------------------- | ---------------- | ----------- |
 | **Turn left encoder**      | Volume              | RGB mode ±       | Brightness ±|
-| **Turn right encoder**     | Fast page scroll    | Hue ±20°         | Speed ±     |
+| **Turn right encoder**     | Mouse scroll        | Hue ±20°         | Speed ±     |
 | **Press left encoder**     | Mute                | RGB on/off       | —           |
 | **Press right encoder**    | LED power cut (`EP_TOG`) | Next OLED animation | —      |
 
