@@ -17,6 +17,18 @@
 
 #define DT_DRV_COMPAT zmk_behavior_mouse_wheel
 
+/* IS_ENABLED() comes from Zephyr's sys/util_macro.h and must be included
+ * before the #if below can use it -- CONFIG_* macros are injected into
+ * every file via -imacros autoconf.h, but the IS_ENABLED macro itself is
+ * not. (Same trap that broke behavior_sensor_rotate_dynamic.c once.) */
+#include <zephyr/sys/util_macro.h>
+
+/* CENTRAL-ONLY: the HID stack (zmk_hid_mouse_scroll_set,
+ * zmk_endpoints_send_mouse_report) only exists in a central build; a split
+ * peripheral just forwards raw key events. Guarding the whole file the
+ * same way ZMK guards its own HID-sending code. */
+#if (!IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL))
+
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -136,3 +148,5 @@ static const struct behavior_driver_api behavior_mouse_wheel_driver_api = {
 DT_INST_FOREACH_STATUS_OKAY(MWHEEL_INST)
 
 #endif /* DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT) */
+
+#endif /* (!IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)) */
