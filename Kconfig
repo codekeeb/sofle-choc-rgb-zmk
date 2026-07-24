@@ -52,6 +52,19 @@ config ZMK_SENSOR_ROTATE_DYNAMIC
     bool
     default $(dt_compat_enabled,$(DT_COMPAT_ZMK_SENSOR_ROTATE_DYNAMIC))
     select SETTINGS
+    # zmk_behavior_get_local_id()/zmk_behavior_find_behavior_name_from_local_id()
+    # (used to persist/restore bindings by behavior identity) only compile
+    # into ZMK's core when this is on -- normally pulled in transitively by
+    # ZMK_STUDIO, which this half (sofle_right, no Studio) doesn't have.
+    # Confirmed by a real CI failure: sofle_right linked fine on
+    # devicetree/Kconfig but failed with "undefined reference to
+    # zmk_behavior_get_local_id" at the final link step. The actual local
+    # ID SCHEME (CRC16, required for the split relay) is forced explicitly
+    # in config/sofle.conf for every build, not selected from here --
+    # Studio's own Kconfig also selects LOCAL_IDS without picking a type,
+    # so leaving the type to inference here risked each half's Kconfig
+    # solver landing on a different one.
+    select ZMK_BEHAVIOR_LOCAL_IDS
     help
       Encoder (sensor) rotation bindings whose clockwise/counter-clockwise
       assignment can be read and rewritten at runtime (unlike stock ZMK's
