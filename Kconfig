@@ -33,3 +33,38 @@ config ZMK_RGB_FX_PIXEL_DISTANCE
     depends on ZMK_RGB_FX
     help
       Tabla de distancias entre pixeles usada por el efecto ripple.
+
+# --- Encoder rotation bindings editable en runtime via ZMK Studio ---
+#
+# Split in two: the behavior itself (ZMK_SENSOR_ROTATE_DYNAMIC) must
+# compile on BOTH halves whenever the keymap references it in
+# sensor-bindings -- sensor events are processed locally on whichever
+# half the physical encoder lives on, same as stock sensor-rotate, so it
+# does NOT depend on ZMK_STUDIO (the right half never builds with Studio
+# in this repo, but its own encoder's rotation still has to work).
+# The RPC subsystem that lets Studio read/write it over USB
+# (ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO) only makes sense -- and only
+# compiles -- on the half that has Studio.
+
+DT_COMPAT_ZMK_SENSOR_ROTATE_DYNAMIC := zmk,behavior-sensor-rotate-dynamic
+
+config ZMK_SENSOR_ROTATE_DYNAMIC
+    bool
+    default $(dt_compat_enabled,$(DT_COMPAT_ZMK_SENSOR_ROTATE_DYNAMIC))
+    select SETTINGS
+    help
+      Encoder (sensor) rotation bindings whose clockwise/counter-clockwise
+      assignment can be read and rewritten at runtime (unlike stock ZMK's
+      compile-time-only sensor-bindings) and persists via settings, same
+      as regular keys. See ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO for the half
+      that also exposes this over ZMK Studio.
+
+config ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO
+    bool
+    default y
+    depends on ZMK_SENSOR_ROTATE_DYNAMIC && ZMK_STUDIO
+    help
+      ZMK Studio RPC handlers (get_sensor_bindings, set_sensor_binding)
+      for ZMK_SENSOR_ROTATE_DYNAMIC. Requires the fork
+      codekeeb/zmk-studio-messages (see config/west.yml) with those
+      request/response messages, which don't exist upstream.

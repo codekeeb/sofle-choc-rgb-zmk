@@ -7,10 +7,27 @@ manifest:
     - name: codekeeb
       url-base: https://github.com/codekeeb
   projects:
+    # Fork of zmkfirmware/zmk (based on v0.3) with the split-transport
+    # relay for sensor_rotate_dynamic (see include/zmk/sensor_rotate_dynamic.h):
+    # app/include/zmk/split/transport/types.h gets a new peripheral event
+    # type, and app/src/split/central.c gets a matching case, so a
+    # peripheral-side encoder's runtime-editable binding can reach the
+    # central (where ZMK Studio actually runs). Nothing else changed from
+    # upstream v0.3 -- diff at
+    # https://github.com/codekeeb/zmk/compare/v0.3...sensor-binding-split-relay
     - name: zmk
-      remote: zmkfirmware
-      revision: v0.3
+      remote: codekeeb
+      revision: sensor-binding-split-relay
       import: app/west.yml
+    # Override the zmk-studio-messages that ZMK's app/west.yml imports:
+    # adds Layer.sensor_bindings + SetSensorBindingRequest/Response so
+    # ZMK Studio (and this repo's src/studio/sensor_binding_subsystem.c)
+    # can read/write encoder rotation behavior, which upstream never
+    # exposed at all. Field numbers are in the 100+ range to avoid
+    # colliding with future upstream additions.
+    - name: zmk-studio-messages
+      remote: codekeeb
+      revision: sensor-binding-rpc
     # Override the Zephyr that ZMK imports: the v3.5.0+zmk-fixes branch got
     # a Nordic HAL bump on 2025-05-26 that breaks WS2812 output over SPIM on
     # this keyboard (LEDs dark with "correct" SPI data). It is pinned to the

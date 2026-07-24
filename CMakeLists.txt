@@ -19,3 +19,12 @@ if(CONFIG_ZMK_RGB_FX)
     src/fx/heatmap.c
     src/fx/layer_color.c)
 endif()
+
+if(CONFIG_ZMK_SENSOR_ROTATE_DYNAMIC)
+  target_include_directories(app PRIVATE include)
+  target_sources(app PRIVATE src/behaviors/behavior_sensor_rotate_dynamic.c)
+endif()
+
+if(CONFIG_ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO)
+  target_sources(app PRIVATE src/studio/sensor_binding_subsystem.c)
+endif()
