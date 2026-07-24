@@ -29,6 +29,12 @@
 
 #define DT_DRV_COMPAT zmk_behavior_sensor_rotate_dynamic
 
+/* IS_ENABLED() itself comes from Zephyr's sys/util_macro.h -- needs to be
+ * included BEFORE the #if below can use it (unlike CONFIG_* macros
+ * themselves, which the build already provides to every file via
+ * -imacros autoconf.h). */
+#include <zephyr/sys/util_macro.h>
+
 #if (!IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL))
 
 #include <stdio.h>
