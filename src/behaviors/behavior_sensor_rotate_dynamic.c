@@ -7,13 +7,29 @@
  * with no public way to change them. This behavior keeps the exact same
  * rotation-processing logic (vendored from
  * app/src/behaviors/behavior_sensor_rotate_common.c, tap-based dispatch)
- * but stores its cw/ccw bindings in mutable per-instance config, exposes
- * a lookup table keyed by (layer_id, sensor_idx) so the studio subsystem
- * can find and rewrite the right instance, and persists changes via
- * settings the same way regular key bindings already do.
+ * but stores its cw/ccw bindings in mutable per-instance data instead of
+ * const devicetree config, and exposes a lookup table keyed by
+ * (layer_id, sensor_idx) so the studio subsystem can find and rewrite
+ * the right instance, with changes persisted via settings the same way
+ * regular key bindings already do.
+ *
+ * CENTRAL-ONLY, on purpose: ZMK itself never runs sensor-rotate behavior
+ * logic on a split peripheral -- app/CMakeLists.txt guards
+ * behavior_sensor_rotate_common.c (and behavior_queue.c, which
+ * zmk_behavior_queue_add lives in) behind
+ * `if ((NOT CONFIG_ZMK_SPLIT) OR CONFIG_ZMK_SPLIT_ROLE_CENTRAL)`. A
+ * peripheral's own EC11 still reports raw rotation, but that raw sensor
+ * event is forwarded to the central over the split link (ZMK's own,
+ * already-existing mechanism -- confirmed via USB logging) and it's the
+ * CENTRAL that decides what to do with it for both encoders. So this
+ * whole file -- the behavior device itself -- only needs to exist there;
+ * confirmed by a real CI failure (`undefined reference to
+ * zmk_behavior_queue_add`) building this behavior into the peripheral.
  */
 
 #define DT_DRV_COMPAT zmk_behavior_sensor_rotate_dynamic
+
+#if (!IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL))
 
 #include <stdio.h>
 
@@ -28,14 +44,8 @@
 #include <zmk/keymap.h>
 #include <zmk/sensors.h>
 #include <zmk/virtual_key_position.h>
-#include <zmk/event_manager.h>
 #include <zmk/events/position_state_changed.h>
 #include <zmk/sensor_rotate_dynamic.h>
-
-#if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-#include <zmk/split/transport/peripheral.h>
-#include <zmk/events/split_peripheral_status_changed.h>
-#endif
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -113,85 +123,6 @@ static void save_binding(const struct device *dev, bool cw) {
 }
 #endif /* IS_ENABLED(CONFIG_SETTINGS) */
 
-/* ---- split relay: peripheral -> central ----
- *
- * ZMK Studio's RPC transport only runs on the central, but each half
- * processes ITS OWN encoder's sensor events locally (confirmed: sensor
- * events never cross the split on their own). So a peripheral-side
- * encoder's binding is only visible to Studio if the peripheral itself
- * pushes it over -- reported whenever the split link comes up (see the
- * zmk_split_peripheral_status_changed listener below), which covers
- * both first boot and any later reconnect. */
-#if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-
-static void report_binding_to_central(const struct device *dev, bool cw) {
-    const struct sensor_rotate_dynamic_config *cfg = dev->config;
-    struct sensor_rotate_dynamic_data *data = dev->data;
-    const struct zmk_behavior_binding *binding = cw ? &data->cw_binding : &data->ccw_binding;
-
-    struct zmk_split_transport_peripheral_event ev = {
-        .type = ZMK_SPLIT_TRANSPORT_PERIPHERAL_EVENT_TYPE_SENSOR_ROTATE_DYNAMIC_SYNC,
-        .data = {.sensor_rotate_dynamic_sync = {
-                     .layer_id = cfg->layer_id,
-                     .sensor_index = cfg->sensor_idx,
-                     .clockwise = cw ? 1 : 0,
-                     .behavior_local_id = zmk_behavior_get_local_id(binding->behavior_dev),
-                     .param1 = binding->param1,
-                     .param2 = binding->param2,
-                 }}};
-
-    int err = zmk_split_peripheral_report_event(&ev);
-    if (err) {
-        LOG_WRN("Failed to report sensrot binding (layer %d, sensor %d, cw %d) to central: %d",
-                cfg->layer_id, cfg->sensor_idx, cw, err);
-    }
-}
-
-static void report_all_bindings_to_central(void) {
-    /* The keymap declares one instance per (layer, sensor) for BOTH
-     * sensors on every half (the same sofle.keymap compiles into both
-     * binaries) -- but only the sensor that's physically wired to THIS
-     * half ever gets real rotation events here. Reporting the other
-     * sensor's instances too would push this half's meaningless factory
-     * values over the central's own (correct, locally-processed) copy
-     * of that sensor. This board's peripheral is always the right half,
-     * i.e. sensor_index 1 (see sofle.keymap's enc_r0/1/2 vs enc_l0/1/2);
-     * only report those. */
-    for (size_t i = 0; i < registry_len; i++) {
-        const struct sensor_rotate_dynamic_config *cfg = registry[i]->config;
-        if (cfg->sensor_idx != 1) {
-            continue;
-        }
-        report_binding_to_central(registry[i], true);
-        report_binding_to_central(registry[i], false);
-    }
-}
-
-/* Settings finish loading well before the split link is actually up
- * (BLE pairing/reconnect takes seconds), so pushing from a settings
- * commit callback would silently drop the message (no active transport
- * yet). Instead, wait for the connected notification, which is exactly
- * "the link is now usable" -- and this fires on every reconnect too,
- * not just first boot, so a central that misses the first push (e.g. it
- * booted after the peripheral) still converges once it's back. */
-static int sensor_rotate_dynamic_split_listener(const zmk_event_t *eh) {
-    const struct zmk_split_peripheral_status_changed *ev;
-    if ((ev = as_zmk_split_peripheral_status_changed(eh)) == NULL) {
-        return -ENOTSUP;
-    }
-
-    if (ev->connected) {
-        report_all_bindings_to_central();
-    }
-
-    return ZMK_EV_EVENT_BUBBLE;
-}
-
-ZMK_LISTENER(sensor_rotate_dynamic_split, sensor_rotate_dynamic_split_listener);
-ZMK_SUBSCRIPTION(sensor_rotate_dynamic_split, zmk_split_peripheral_status_changed);
-
-#endif /* IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) */
-
 int sensor_rotate_dynamic_set_binding(uint8_t layer_id, uint8_t sensor_idx, bool cw,
                                       struct zmk_behavior_binding binding) {
     const struct device *dev = lookup_instance(layer_id, sensor_idx);
@@ -214,54 +145,8 @@ int sensor_rotate_dynamic_set_binding(uint8_t layer_id, uint8_t sensor_idx, bool
     save_binding(dev, cw);
 #endif
 
-#if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    report_binding_to_central(dev, cw);
-#endif
-
     return SENSOR_ROTATE_DYNAMIC_SET_OK;
 }
-
-#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-
-int zmk_sensor_rotate_dynamic_apply_synced_binding(uint8_t layer_id, uint8_t sensor_idx, bool cw,
-                                                   uint16_t behavior_local_id, uint32_t param1,
-                                                   uint32_t param2) {
-    const struct device *dev = lookup_instance(layer_id, sensor_idx);
-    if (!dev) {
-        LOG_WRN("Got a sensrot sync for unknown (layer %d, sensor %d), ignoring", layer_id,
-                sensor_idx);
-        return 0;
-    }
-
-    const char *behavior_name = zmk_behavior_find_behavior_name_from_local_id(behavior_local_id);
-    if (!behavior_name) {
-        LOG_WRN("Sensrot sync (layer %d, sensor %d, cw %d) names an unknown behavior, ignoring",
-                layer_id, sensor_idx, cw);
-        return 0;
-    }
-
-    struct sensor_rotate_dynamic_data *data = dev->data;
-    struct zmk_behavior_binding synced = {
-        .behavior_dev = behavior_name,
-        .param1 = param1,
-        .param2 = param2,
-    };
-    if (cw) {
-        data->cw_binding = synced;
-    } else {
-        data->ccw_binding = synced;
-    }
-
-#if IS_ENABLED(CONFIG_SETTINGS)
-    /* The central persists it too, so it survives even if it boots
-     * without the peripheral connected (using the last known value). */
-    save_binding(dev, cw);
-#endif
-
-    return 0;
-}
-
-#endif /* IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) */
 
 /* ---- settings load ---- */
 
@@ -444,3 +329,5 @@ static int sensor_rotate_dynamic_init(const struct device *dev) {
                             &sensor_rotate_dynamic_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(SENSOR_ROTATE_DYNAMIC_INST)
+
+#endif /* (!IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)) */

@@ -36,48 +36,39 @@ config ZMK_RGB_FX_PIXEL_DISTANCE
 
 # --- Encoder rotation bindings editable en runtime via ZMK Studio ---
 #
-# Split in two: the behavior itself (ZMK_SENSOR_ROTATE_DYNAMIC) must
-# compile on BOTH halves whenever the keymap references it in
-# sensor-bindings -- sensor events are processed locally on whichever
-# half the physical encoder lives on, same as stock sensor-rotate, so it
-# does NOT depend on ZMK_STUDIO (the right half never builds with Studio
-# in this repo, but its own encoder's rotation still has to work).
-# The RPC subsystem that lets Studio read/write it over USB
-# (ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO) only makes sense -- and only
-# compiles -- on the half that has Studio.
+# CENTRAL-ONLY, deliberately: ZMK itself never runs sensor-rotate
+# behavior logic on a split peripheral (app/CMakeLists.txt guards
+# behavior_sensor_rotate_common.c and behavior_queue.c behind
+# `if ((NOT CONFIG_ZMK_SPLIT) OR CONFIG_ZMK_SPLIT_ROLE_CENTRAL)`) -- a
+# peripheral's own encoder reports raw rotation, which ZMK's split link
+# forwards to the central, and the central is what always decides what
+# to do with it, for BOTH encoders. Confirmed by a real CI failure this
+# behavior tried to compile into sofle_right (peripheral) at first:
+# "undefined reference to zmk_behavior_queue_add" (that symbol doesn't
+# even exist in a peripheral build). Its own .c file is guarded the same
+# way ZMK's is, so this Kconfig option simply never applies there.
+#
+# Only ever enabled on the half with ZMK_STUDIO (this repo's sofle_left),
+# since that's the only place it's useful.
 
 DT_COMPAT_ZMK_SENSOR_ROTATE_DYNAMIC := zmk,behavior-sensor-rotate-dynamic
 
 config ZMK_SENSOR_ROTATE_DYNAMIC
     bool
     default $(dt_compat_enabled,$(DT_COMPAT_ZMK_SENSOR_ROTATE_DYNAMIC))
+    depends on !ZMK_SPLIT || ZMK_SPLIT_ROLE_CENTRAL
     select SETTINGS
     # zmk_behavior_get_local_id()/zmk_behavior_find_behavior_name_from_local_id()
     # (used to persist/restore bindings by behavior identity) only compile
-    # into ZMK's core when this is on -- normally pulled in transitively by
-    # ZMK_STUDIO, which this half (sofle_right, no Studio) doesn't have.
-    # Confirmed by a real CI failure: sofle_right linked fine on
-    # devicetree/Kconfig but failed with "undefined reference to
-    # zmk_behavior_get_local_id" at the final link step. The actual local
-    # ID SCHEME (CRC16, required for the split relay) is forced explicitly
-    # in config/sofle.conf for every build, not selected from here --
-    # Studio's own Kconfig also selects LOCAL_IDS without picking a type,
-    # so leaving the type to inference here risked each half's Kconfig
-    # solver landing on a different one.
+    # into ZMK's core behind CONFIG_ZMK_BEHAVIOR_LOCAL_IDS, normally
+    # pulled in transitively by ZMK_STUDIO -- which is always present
+    # wherever this is enabled (see the `depends on` above), so this
+    # select is effectively redundant with Studio's own, but kept
+    # explicit for clarity and for standalone use of the module.
     select ZMK_BEHAVIOR_LOCAL_IDS
     help
       Encoder (sensor) rotation bindings whose clockwise/counter-clockwise
-      assignment can be read and rewritten at runtime (unlike stock ZMK's
-      compile-time-only sensor-bindings) and persists via settings, same
-      as regular keys. See ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO for the half
-      that also exposes this over ZMK Studio.
-
-config ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO
-    bool
-    default y
-    depends on ZMK_SENSOR_ROTATE_DYNAMIC && ZMK_STUDIO
-    help
-      ZMK Studio RPC handlers (get_sensor_bindings, set_sensor_binding)
-      for ZMK_SENSOR_ROTATE_DYNAMIC. Requires the fork
-      codekeeb/zmk-studio-messages (see config/west.yml) with those
-      request/response messages, which don't exist upstream.
+      assignment can be read and rewritten at runtime over ZMK Studio
+      (unlike stock ZMK's compile-time-only sensor-bindings) and persists
+      via settings, same as regular keys. See
+      src/studio/sensor_binding_subsystem.c for the RPC handlers.

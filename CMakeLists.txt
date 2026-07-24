@@ -25,6 +25,9 @@ if(CONFIG_ZMK_SENSOR_ROTATE_DYNAMIC)
   target_sources(app PRIVATE src/behaviors/behavior_sensor_rotate_dynamic.c)
 endif()
 
-if(CONFIG_ZMK_SENSOR_ROTATE_DYNAMIC_STUDIO)
+# The Studio RPC handlers only make sense where Studio itself runs;
+# ZMK_SENSOR_ROTATE_DYNAMIC is already central-only (see Kconfig), and
+# Studio in this repo only ever builds on the central too.
+if(CONFIG_ZMK_SENSOR_ROTATE_DYNAMIC AND CONFIG_ZMK_STUDIO)
   target_sources(app PRIVATE src/studio/sensor_binding_subsystem.c)
 endif()
