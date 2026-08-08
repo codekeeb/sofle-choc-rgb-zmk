@@ -12,22 +12,27 @@
 #     shield: reviung41
 #
 ---
+# Rama niceepaper: pantallas de tinta electronica (nice!view) en lugar de
+# las OLED. El shield nice_epaper vive en el mismo modulo que nice_oled
+# (codekeeb/zmk-nice-oled) y necesita ademas nice_view_adapter, que es el
+# que mapea el conector de la nice!view sobre el pro-micro del sofle.
+# El orden importa: primero el adaptador, luego el shield de la pantalla.
 include:
   - board: nice_nano_v2
-    shield: sofle_left nice_oled
+    shield: sofle_left nice_view_adapter nice_epaper
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_STUDIO=y
   - board: nice_nano_v2
-    shield: sofle_right nice_oled
+    shield: sofle_right nice_view_adapter nice_epaper
   - board: nice_nano_v2
     shield: settings_reset
   # Debug: USB logs + solid red at boot + SPIM3 registers.
   - board: nice_nano_v2
-    shield: sofle_left nice_oled
+    shield: sofle_left nice_view_adapter nice_epaper
     snippet: zmk-usb-logging
     artifact-name: sofle_left_usb_logging
   # Debug: USB logs of the RIGHT half (split peripheral).
   - board: nice_nano_v2
-    shield: sofle_right nice_oled
+    shield: sofle_right nice_view_adapter nice_epaper
     snippet: zmk-usb-logging
     artifact-name: sofle_right_usb_logging

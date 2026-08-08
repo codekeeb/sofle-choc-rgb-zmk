@@ -1,13 +1,34 @@
 # Sofle Choc Wireless RGB — ZMK firmware · CODE/KEEB
 
 ZMK firmware for the CODE/KEEB **Sofle Choc wireless RGB**: nice!nano v2,
-vertical OLED displays, 30 RGB LEDs per half (29 per-key + 1 on the
+vertical displays, 30 RGB LEDs per half (29 per-key + 1 on the
 encoder), 2 rotary encoders and ZMK Studio.
 
 It bundles a **custom RGB effect engine** (vendored and heavily extended
 from [zmk-rgb-fx], MIT) and a **fork of the display module**
 ([codekeeb/zmk-nice-oled], `selectable` branch) with features that don't
 exist in the originals.
+
+> ### 🖤 Branch `niceepaper` — e-ink displays
+>
+> This branch swaps the I2C OLEDs for **nice!view e-paper** panels. Only
+> the build config changes; the keymap, RGB engine and widgets are the
+> same as `main`.
+>
+> | | `main` | `niceepaper` |
+> |---|---|---|
+> | Panel | SSD1306 OLED, I2C | nice!view (Sharp memory LCD), SPI |
+> | Shields | `sofle_* nice_oled` | `sofle_* nice_view_adapter nice_epaper` |
+> | Idle blanking | on | off (e-ink holds the image with no power) |
+>
+> The panel sits on **SPI0** (SCK P0.20 / MOSI P0.17 / MISO P0.25) while
+> the WS2812 chain stays on **SPI3 / P0.08**, so the two do not collide.
+> The adapter disables `pro_micro_i2c`, which is fine here: nothing else
+> in this config uses that bus.
+>
+> **Hardware note:** the nice!view is not pin-compatible with an OLED —
+> the module has 5 pads (plus CS) instead of the OLED's 4, so the PCB or
+> the wiring has to match the nice!view footprint.
 
 ---
 
