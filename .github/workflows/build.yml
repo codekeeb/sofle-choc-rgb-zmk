@@ -26,8 +26,21 @@ jobs:
         # end users should never flash them.
         run: rm -f firmware/*_usb_logging*
 
+      # Un unico zip con los .uf2 dentro. Antes se subian sueltos y habia
+      # que rehacer el release a mano para empaquetarlos.
+      - name: Package firmware into a single zip
+        run: |
+          cd firmware
+          for f in *.uf2; do
+            n="${f// /.}"
+            [ "$f" = "$n" ] || mv "$f" "$n"
+          done
+          zip -j "../SofleChoc-${GITHUB_REF_NAME}.zip" *.uf2
+          cd ..
+          unzip -l "SofleChoc-${GITHUB_REF_NAME}.zip"
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: firmware/*
+          files: SofleChoc-${{ github.ref_name }}.zip
           generate_release_notes: true
