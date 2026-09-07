@@ -21,6 +21,39 @@
             #binding-cells = <0>;
         };
 
+        // Internal central->peripheral relay: sets the animation by
+        // index. Not bound to any key; the ZMK Studio RPC handler calls
+        // it, the same way the RGB uses &rgbsync. Without it the web
+        // changed the animation only on the central half, which is not
+        // the one with the animated screen, so nothing happened.
+        oledset: oledset {
+            compatible = "zmk,behavior-oled-set";
+            #binding-cells = <1>;
+        };
+
+        // WPM view on the LEFT screen (bongo cat, luna, number,
+        // speedometer, graph). &wpmview cycles; &wpmset picks one by
+        // index and is what the ZMK Studio RPC uses.
+        wpmview: wpmview {
+            compatible = "zmk,behavior-wpm-view";
+            #binding-cells = <0>;
+        };
+
+        wpmset: wpmset {
+            compatible = "zmk,behavior-wpm-set";
+            #binding-cells = <1>;
+        };
+
+        // Internal central->peripheral relay for the deep sleep setting
+        // (enabled + minutes). Like &oledset, not bound to any key: the
+        // RPC handler invokes it. Needed because each half watches its
+        // own inactivity, so the setting has to reach both or the
+        // peripheral keeps the old delay.
+        sleepcfg: sleepcfg {
+            compatible = "zmk,behavior-sleep-cfg";
+            #binding-cells = <2>;
+        };
+
         // Macros editables en caliente (CODEKEEB PATCH, ver
         // src/behaviors/behavior_dynamic_macro.c). &dmac N reproduce la
         // ranura N, cuyo contenido se escribe desde el editor web y vive
@@ -198,13 +231,13 @@
 // |       | F1  | F2  |  F3  |  F4  |  F5  |                         |  F6  |   F7  |   F8  |  F9  |  F10  |  DEL  |
 // | `     | F11 | F12 |   €  | RGB  |modRGB|                         |      |       |   UP  |      |       | BKSPC |
 // |       |     |  {  |   }  | hue- | hue+ |                         |      | LEFT  |  DOWN | RIGHT|       |   |   |
-// |       |ZMKSt|     |      | Bri- | Bri+ |        |        |       |      |       |       |      |   \   |       |
+// |       |ZMKSt|     |      | Bri- | Bri+ |WPMview |        |OLEDanim|     |       |       |      |   \   |       |
 //               |     |      |      |      |  SPACE |        | ENTER |      |       |       |      |
             bindings = <
 &trans     &kp F1         &kp F2       &kp F3       &kp F4                   &kp F5                                                         &kp F6     &kp F7     &kp F8           &kp F9     &kp F10    &kp DEL
 &kp GRAVE  &kp F11        &kp F12      &kp RA(E)    &rgbfx RGBFX_TOGGLE(0)   &rgbfx RGBFX_NEXT(0)                                           &trans     &trans     &kp UP           &trans     &trans     &kp BSPC
 &trans     &trans         &kp LBRC     &kp RBRC     &rgbfx RGBFX_HUE_DOWN(0) &rgbfx RGBFX_HUE_UP(0)                                         &trans     &kp LEFT   &kp DOWN         &kp RIGHT  &trans     &kp PIPE
-&trans     &studio_unlock &trans       &trans       &rgbfx RGBFX_DIM(0)      &rgbfx RGBFX_BRIGHTEN(0)  &rgbfx RGBFX_TOGGLE(0)    &oledanim  &trans     &trans     &trans           &trans     &kp BSLH   &trans
+&trans     &studio_unlock &trans       &trans       &rgbfx RGBFX_DIM(0)      &rgbfx RGBFX_BRIGHTEN(0)  &wpmview                  &oledanim  &trans     &trans     &trans           &trans     &kp BSLH   &trans
                           &trans       &trans       &trans                   &trans                    &trans                    &trans     &trans     &trans     &trans           &trans
             >;
 
