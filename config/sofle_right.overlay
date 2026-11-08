@@ -169,11 +169,12 @@
         column-width = <20>;
     };
 
+    /* Order = the &rgbfx NEXT/PREVIOUS cycle and the index the web uses. */
     fx_group: fx_group {
         compatible = "zmk,rgb-fx-control-group";
-        fx = <&fx_gradient &fx_ripple &fx_sparkle &fx_solid
-              &fx_fire &fx_ocean &fx_sparkle_oro &fx_ripple_rosa
-              &fx_sunset &fx_heatmap &fx_static &fx_matrix>;
+        fx = <&fx_static &fx_gradient &fx_sunset &fx_solid
+              &fx_matrix &fx_ripple &fx_sparkle &fx_fire
+              &fx_ocean &fx_sparkle_oro &fx_ripple_rosa &fx_heatmap>;
         brightness-steps = <5>;
     };
 };
