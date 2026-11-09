@@ -146,8 +146,12 @@ static const struct behavior_parameter_metadata metadata = {
 #endif /* IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA) */
 
 static const struct behavior_driver_api behavior_rgb_fx_driver_api = {
-    /* Without global locality the RGB keys would only act on the central half. */
-    .locality = BEHAVIOR_LOCALITY_GLOBAL,
+    /* Central-only ON PURPOSE (default locality). A GLOBAL behavior applied
+     * every relative command (toggle = flip, next = +1, rotate = +90) on
+     * each half, so any missed or reordered press left the halves out of
+     * step for good. The central is the single source of truth: it handles
+     * the command and pushes the resulting ABSOLUTE state to the peripheral
+     * via `rgbsync` (see control_group.c). */
     .binding_convert_central_state_dependent_params =
         on_keymap_binding_convert_central_state_dependent_params,
     .binding_pressed = on_keymap_binding_pressed,
