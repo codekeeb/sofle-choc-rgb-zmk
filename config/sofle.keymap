@@ -31,6 +31,14 @@
             #binding-cells = <1>;
         };
 
+        // Internal central->peripheral relay: a notice (BT profile, BT
+        // clear, USB/BLE, Caps Lock, Studio) for the right screen. Not
+        // bound to any key; see src/oled_notify.c.
+        oledmsg: oledmsg {
+            compatible = "zmk,behavior-oled-notify";
+            #binding-cells = <1>;
+        };
+
         // WPM view on the LEFT screen (bongo cat, luna, number,
         // speedometer, graph). &wpmview cycles; &wpmset picks one by
         // index and is what the ZMK Studio RPC uses.
